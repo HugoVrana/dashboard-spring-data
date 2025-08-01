@@ -1,15 +1,9 @@
-FROM maven:3-jdk-8-alpine as builder
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-WORKDIR /usr/src/app
-
-COPY . /usr/src/app
-RUN mvn package
-
-FROM openjdk:8-jre-alpine
-
-COPY --from=builder /usr/src/app/target/*.jar /app.jar
-
+FROM eclipse-temurin:21-jdk
+COPY --from=builder /app/target/*.jar /app.jar
 EXPOSE 8080
-
-ENTRYPOINT ["java"]
-CMD ["-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
