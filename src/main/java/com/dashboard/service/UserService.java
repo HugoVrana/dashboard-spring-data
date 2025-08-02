@@ -1,15 +1,22 @@
 package com.dashboard.service;
 
+import com.dashboard.model.User;
 import com.dashboard.repository.IUserRepository;
+import com.dashboard.service.interfaces.IUserService;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @Scope("singleton")
-public class UserService {
+public class UserService implements IUserService {
     private final IUserRepository userRepository;
 
     public UserService(IUserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
