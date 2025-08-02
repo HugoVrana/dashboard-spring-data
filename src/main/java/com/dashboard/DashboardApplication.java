@@ -10,7 +10,7 @@ public class DashboardApplication {
 
 	@GetMapping("/")
 	public String home() {
-		return "Spring is here!";
+		return "Spring Dashboard is here!";
 	}
 
 	public static void main(String[] args) {
