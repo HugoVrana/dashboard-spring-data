@@ -1,8 +1,10 @@
 package com.dashboard.controller;
 
+import com.dashboard.dataTransferObjects.InvoiceDto;
 import com.dashboard.model.Invoice;
 import com.dashboard.service.interfaces.IInvoiceService;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,6 +21,20 @@ public class InvoicesController {
     @GetMapping("/")
     public List<Invoice> getAllInvoices() {
         return invoiceService.getAllInvoices();
+    }
+
+    @GetMapping("/latest")
+    public List<InvoiceDto> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
+        List<Invoice> invoices = (indexFrom == null || indexTo == null)
+                ? invoiceService.getAllInvoices()
+                : invoiceService.getLatestInvoice(indexFrom, indexTo);
+
+        List<InvoiceDto> invoiceDtos = new ArrayList<>();
+        for(Invoice invoice : invoices){
+            InvoiceDto invoiceDto = new InvoiceDto(invoice);
+            invoiceDtos.add(invoiceDto);
+        }
+        return invoiceDtos;
     }
 
     @GetMapping("/count")
