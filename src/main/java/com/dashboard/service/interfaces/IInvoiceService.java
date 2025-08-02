@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface IInvoiceService {
     List<Invoice> getAllInvoices();
+    List<Invoice> getInvoicesByStatus(String status);
 }
