@@ -23,4 +23,9 @@ public class CustomersController {
     public List<Customer> getAllCustomers() {
         return customersService.getAllCustomers();
     }
+
+    @GetMapping("/count")
+    public Integer getCustomerCount() {
+        return customersService.getAllCustomers().size();
+    }
 }
