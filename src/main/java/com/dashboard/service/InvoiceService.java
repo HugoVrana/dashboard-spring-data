@@ -19,4 +19,8 @@ public class InvoiceService implements IInvoiceService {
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
     }
+
+    public  List<Invoice> getInvoicesByStatus(String status){
+        return invoiceRepository.findByStatus(status);
+    }
 }

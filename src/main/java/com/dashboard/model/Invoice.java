@@ -9,7 +9,7 @@ import java.util.Date;
 @Document(collection = "invoices")
 public class Invoice {
     public ObjectId _id;
-    public ObjectId customerId;
+    public ObjectId customer_id;
     public Double amount;
     public Date date;
     public String status;
