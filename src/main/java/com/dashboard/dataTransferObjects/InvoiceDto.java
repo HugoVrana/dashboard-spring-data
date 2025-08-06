@@ -1,6 +1,5 @@
 package com.dashboard.dataTransferObjects;
 
-import com.dashboard.model.Invoice;
 import lombok.Data;
 import java.util.Date;
 
@@ -11,14 +10,4 @@ public class InvoiceDto {
     public Double amount;
     public Date date;
     public CustomerDto customer;
-
-    public InvoiceDto(Invoice invoice) {
-        this.id = invoice.get_id().toHexString();
-        this.status = invoice.getStatus();
-        this.amount = invoice.getAmount();
-        this.date = invoice.getDate();
-        if (invoice.getCustomer() != null) {
-            this.customer = new CustomerDto(invoice.getCustomer());
-        }
-    }
 }

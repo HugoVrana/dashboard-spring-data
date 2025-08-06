@@ -1,8 +1,10 @@
 package com.dashboard.controller;
 
 import com.dashboard.dataTransferObjects.InvoiceDto;
+import com.dashboard.mappers.CustomerMapper;
+import com.dashboard.mappers.InvoiceMapper;
 import com.dashboard.model.Invoice;
-import com.dashboard.service.interfaces.IInvoiceService;
+import com.dashboard.service.InvoiceService;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +13,26 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/invoices")
 public class InvoicesController {
+    private final InvoiceService invoiceService;
+    private final InvoiceMapper invoiceMapper;
+    private final CustomerMapper customerMapper;
 
-    private final IInvoiceService invoiceService;
-
-    public InvoicesController(IInvoiceService invoiceService) {
+    public InvoicesController(InvoiceService invoiceService, InvoiceMapper invoiceMapper, CustomerMapper customerMapper) {
         this.invoiceService = invoiceService;
+        this.invoiceMapper = invoiceMapper;
+        this.customerMapper = customerMapper;
     }
 
     @GetMapping("/")
-    public List<Invoice> getAllInvoices() {
-        return invoiceService.getAllInvoices();
+    public List<InvoiceDto> getAllInvoices() {
+        List<Invoice> invoices = invoiceService.getAllInvoices();
+        List<InvoiceDto> invoiceDtos = new ArrayList<>();
+        for(Invoice invoice : invoices) {
+            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
+            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceDtos.add(invoiceDto);
+        }
+        return invoiceDtos;
     }
 
     @GetMapping("/latest")
@@ -28,10 +40,10 @@ public class InvoicesController {
         List<Invoice> invoices = (indexFrom == null || indexTo == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
-
         List<InvoiceDto> invoiceDtos = new ArrayList<>();
-        for(Invoice invoice : invoices){
-            InvoiceDto invoiceDto = new InvoiceDto(invoice);
+        for(Invoice invoice : invoices) {
+            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
+            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
             invoiceDtos.add(invoiceDto);
         }
         return invoiceDtos;
@@ -57,5 +69,18 @@ public class InvoicesController {
                 .stream()
                 .mapToDouble(Invoice::getAmount)
                 .sum();
+    }
+
+    @GetMapping("/search")
+    public List<InvoiceDto> searchInvoices(@RequestParam String searchTerm) {
+        String lowerSearchTerm = searchTerm.toLowerCase();
+        List<Invoice> invoices = invoiceService.searchInvoices(lowerSearchTerm);
+        List<InvoiceDto> invoiceDtos = new ArrayList<>();
+        for(Invoice invoice : invoices) {
+            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
+            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceDtos.add(invoiceDto);
+        }
+        return invoiceDtos;
     }
 }

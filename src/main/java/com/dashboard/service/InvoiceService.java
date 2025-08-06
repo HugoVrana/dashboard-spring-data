@@ -33,4 +33,8 @@ public class InvoiceService implements IInvoiceService {
                 .limit(indexTo - indexFrom + 1)
                 .toList();
     }
+
+    public List<Invoice> searchInvoices(String searchTerm) {
+        return invoiceRepository.searchInvoices(searchTerm);
+    }
 }
