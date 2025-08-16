@@ -26,13 +26,7 @@ public class InvoicesController {
     @GetMapping("/")
     public List<InvoiceDto> getAllInvoices() {
         List<Invoice> invoices = invoiceService.getAllInvoices();
-        List<InvoiceDto> invoiceDtos = new ArrayList<>();
-        for(Invoice invoice : invoices) {
-            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
-            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
-            invoiceDtos.add(invoiceDto);
-        }
-        return invoiceDtos;
+        return mapToDtos(invoices);
     }
 
     @GetMapping("/latest")
@@ -40,13 +34,7 @@ public class InvoicesController {
         List<Invoice> invoices = (indexFrom == null || indexTo == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
-        List<InvoiceDto> invoiceDtos = new ArrayList<>();
-        for(Invoice invoice : invoices) {
-            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
-            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
-            invoiceDtos.add(invoiceDto);
-        }
-        return invoiceDtos;
+        return mapToDtos(invoices);
     }
 
     @GetMapping("/count")
@@ -73,8 +61,12 @@ public class InvoicesController {
 
     @GetMapping("/search")
     public List<InvoiceDto> searchInvoices(@RequestParam String searchTerm) {
-        String lowerSearchTerm = searchTerm.toLowerCase();
-        List<Invoice> invoices = invoiceService.searchInvoices(lowerSearchTerm);
+        List<Invoice> invoices =  invoiceService.searchInvoices(searchTerm);
+        return mapToDtos(invoices);
+    }
+
+    @org.jetbrains.annotations.NotNull
+    private List<InvoiceDto> mapToDtos(List<Invoice> invoices) {
         List<InvoiceDto> invoiceDtos = new ArrayList<>();
         for(Invoice invoice : invoices) {
             InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
