@@ -5,6 +5,8 @@ import com.dashboard.mappers.CustomerMapper;
 import com.dashboard.mappers.InvoiceMapper;
 import com.dashboard.model.Invoice;
 import com.dashboard.service.InvoiceService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +63,10 @@ public class InvoicesController {
 
     @GetMapping("/search")
     public List<InvoiceDto> searchInvoices(@RequestParam String searchTerm) {
-        List<Invoice> invoices =  invoiceService.searchInvoices(searchTerm);
-        return mapToDtos(invoices);
+        Pageable pageable = Pageable.unpaged();
+        Page<Invoice> invoices =  invoiceService.searchInvoices(searchTerm, pageable);
+        List<Invoice> content = invoices.stream().toList();
+        return mapToDtos(content);
     }
 
     @org.jetbrains.annotations.NotNull
