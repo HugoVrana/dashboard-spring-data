@@ -1,6 +1,5 @@
 package com.dashboard.service;
 
-import com.dashboard.model.Customer;
 import com.dashboard.model.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.service.interfaces.IInvoiceService;
@@ -89,16 +88,9 @@ public class InvoiceService implements IInvoiceService {
         // case-insensitive substring on selected string fields
         Pattern containsCi = Pattern.compile(Pattern.quote(term), Pattern.CASE_INSENSITIVE);
         ors.add(Criteria.where("status").regex(containsCi));
-
-        // search for customers
-        List<ObjectId> customerIds = mongoTemplate.find(
-                Query.query(Criteria.where("name").regex(containsCi)
-                        .orOperator(Criteria.where("email").regex(containsCi))),
-                Customer.class
-        ).stream().map(Customer::get_id).toList();
-        if (!customerIds.isEmpty()) {
-            ors.add(Criteria.where("customer._id").in(customerIds));
-        }
+        // customer id already filtered above
+        ors.add(Criteria.where("customer.name").regex(containsCi));
+        ors.add(Criteria.where("customer.email").regex(containsCi));
 
         Query q = new Query(new Criteria().orOperator(ors.toArray(new Criteria[0]))).with(pageable);
 
