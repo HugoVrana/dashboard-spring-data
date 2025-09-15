@@ -1,14 +1,15 @@
-package com.dashboard.mappers;
+package com.dashboard.mapper;
 
-import com.dashboard.dataTransferObjects.CustomerDto;
+import com.dashboard.dataTransferObject.customer.CustomerRead;
+import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.Customer;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomerMapper implements ICustomerMapper{
+public class CustomerMapper implements ICustomerMapper {
     @Override
-    public CustomerDto toDto(Customer customer) {
-        CustomerDto customerDto = new CustomerDto();
+    public CustomerRead toRead(Customer customer) {
+        CustomerRead customerDto = new CustomerRead();
         customerDto.setId(customer._id.toHexString());
         customerDto.setName(customer.getName());
         customerDto.setEmail(customer.getEmail());

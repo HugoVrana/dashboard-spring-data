@@ -17,5 +17,4 @@ public class Invoice {
     public Double amount;
     public LocalDate date;
     public String status;
-
 }
