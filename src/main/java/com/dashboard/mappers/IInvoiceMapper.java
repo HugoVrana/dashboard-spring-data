@@ -1,9 +1,9 @@
 package com.dashboard.mappers;
 
-import com.dashboard.dataTransferObjects.InvoiceDto;
+import com.dashboard.dataTransferObjects.invoice.InvoiceRead;
 import com.dashboard.model.Invoice;
 
 public interface IInvoiceMapper {
 
-    InvoiceDto toDto(Invoice invoice);
+    InvoiceRead toRead(Invoice invoice);
 }

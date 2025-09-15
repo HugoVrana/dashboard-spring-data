@@ -1,6 +1,6 @@
 package com.dashboard.controller;
 
-import com.dashboard.dataTransferObjects.InvoiceDto;
+import com.dashboard.dataTransferObjects.invoice.InvoiceRead;
 import com.dashboard.mappers.CustomerMapper;
 import com.dashboard.mappers.InvoiceMapper;
 import com.dashboard.model.Invoice;
@@ -26,17 +26,29 @@ public class InvoicesController {
     }
 
     @GetMapping("/")
-    public List<InvoiceDto> getAllInvoices() {
+    public List<InvoiceRead> getAllInvoices() {
         List<Invoice> invoices = invoiceService.getAllInvoices();
-        return mapToDtos(invoices);
+        List<InvoiceRead> invoiceReads = new ArrayList<>();
+        for(Invoice invoice : invoices) {
+            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
+            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceReads.add(invoiceRead);
+        }
+        return invoiceReads;
     }
 
     @GetMapping("/latest")
-    public List<InvoiceDto> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
+    public List<InvoiceRead> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
         List<Invoice> invoices = (indexFrom == null || indexTo == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
-        return mapToDtos(invoices);
+        List<InvoiceRead> invoiceReads = new ArrayList<>();
+        for(Invoice invoice : invoices) {
+            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
+            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceReads.add(invoiceRead);
+        }
+        return invoiceReads;
     }
 
     @GetMapping("/count")
@@ -62,21 +74,16 @@ public class InvoicesController {
     }
 
     @GetMapping("/search")
-    public List<InvoiceDto> searchInvoices(@RequestParam String searchTerm) {
+    public List<InvoiceRead> searchInvoices(@RequestParam String searchTerm) {
         Pageable pageable = Pageable.unpaged();
         Page<Invoice> invoices =  invoiceService.searchInvoices(searchTerm, pageable);
         List<Invoice> content = invoices.stream().toList();
-        return mapToDtos(content);
-    }
-
-    @org.jetbrains.annotations.NotNull
-    private List<InvoiceDto> mapToDtos(List<Invoice> invoices) {
-        List<InvoiceDto> invoiceDtos = new ArrayList<>();
-        for(Invoice invoice : invoices) {
-            InvoiceDto invoiceDto = invoiceMapper.toDto(invoice);
-            invoiceDto.setCustomer(customerMapper.toDto(invoice.getCustomer()));
-            invoiceDtos.add(invoiceDto);
+        List<InvoiceRead> invoiceReads = new ArrayList<>();
+        for(Invoice invoice : content) {
+            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
+            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceReads.add(invoiceRead);
         }
-        return invoiceDtos;
+        return invoiceReads;
     }
 }
