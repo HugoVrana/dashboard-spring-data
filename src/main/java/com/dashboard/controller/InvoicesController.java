@@ -1,29 +1,46 @@
 package com.dashboard.controller;
 
 import com.dashboard.dataTransferObject.customer.CustomerRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.mapper.CustomerMapper;
 import com.dashboard.mapper.InvoiceMapper;
 import com.dashboard.model.Invoice;
+import com.dashboard.model.exception.NotFoundException;
+import com.dashboard.repository.IInvoiceRepository;
+import com.dashboard.service.CustomersService;
 import com.dashboard.service.InvoiceService;
+import jakarta.validation.Valid;
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @RestController
 @CrossOrigin
 @RequestMapping("/invoices")
 public class InvoicesController {
     private final InvoiceService invoiceService;
+    private final CustomersService customersService;
     private final InvoiceMapper invoiceMapper;
     private final CustomerMapper customerMapper;
+    private final IInvoiceRepository iInvoiceRepository;
 
-    public InvoicesController(InvoiceService invoiceService, InvoiceMapper invoiceMapper, CustomerMapper customerMapper) {
+    public InvoicesController(InvoiceService invoiceService,
+                              CustomersService customersService,
+                              InvoiceMapper invoiceMapper,
+                              CustomerMapper customerMapper,
+                              IInvoiceRepository iInvoiceRepository) {
         this.invoiceService = invoiceService;
+        this.customersService = customersService;
         this.invoiceMapper = invoiceMapper;
         this.customerMapper = customerMapper;
+        this.iInvoiceRepository = iInvoiceRepository;
     }
 
     @GetMapping("/")
@@ -87,5 +104,25 @@ public class InvoicesController {
             invoiceReads.add(invoiceRead);
         }
         return invoiceReads;
+    }
+
+    @PostMapping()
+    public ResponseEntity<InvoiceRead> createInvoice(@Valid @RequestBody InvoiceCreate invoiceCreate) {
+        // At this point, customerId is present and matches ObjectId pattern.
+        var customerId = new ObjectId(invoiceCreate.getCustomer_id());
+
+        var customer = customersService.getCustomer(customerId)
+                .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
+
+        var invoice = invoiceMapper.toModel(invoiceCreate, customer);
+        invoice.setDate(LocalDate.now());
+
+        invoice = iInvoiceRepository.save(invoice); // save returns entity with id populated
+        var invoiceRead = invoiceMapper.toRead(invoice);
+        invoiceRead.setCustomer(customerMapper.toRead(customer));
+
+        // Build a Location like /invoices/{id}
+        var location = URI.create("/invoices/" + invoice.get_id());
+        return ResponseEntity.created(location).body(invoiceRead);
     }
 }
