@@ -1,6 +1,6 @@
-package com.dashboard.dataTransferObjects.invoice;
+package com.dashboard.dataTransferObject.invoice;
 
-import com.dashboard.dataTransferObjects.CustomerDto;
+import com.dashboard.dataTransferObject.customer.CustomerRead;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -10,5 +10,5 @@ public class InvoiceRead {
     public String status;
     public Double amount;
     public LocalDate date;
-    public CustomerDto customer;
+    public CustomerRead customer;
 }

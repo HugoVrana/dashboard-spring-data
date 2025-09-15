@@ -1,7 +1,7 @@
 package com.dashboard.controller;
 
-import com.dashboard.dataTransferObjects.CustomerDto;
-import com.dashboard.mappers.CustomerMapper;
+import com.dashboard.dataTransferObject.customer.CustomerRead;
+import com.dashboard.mapper.CustomerMapper;
 import com.dashboard.model.Customer;
 import com.dashboard.service.CustomersService;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,11 +24,11 @@ public class CustomersController {
     }
 
     @GetMapping("/")
-    public List<CustomerDto> getAllCustomers() {
+    public List<CustomerRead> getAllCustomers() {
         List<Customer> customers = customersService.getAllCustomers();
-        List<CustomerDto> customerDtos = new ArrayList<>();
+        List<CustomerRead> customerDtos = new ArrayList<>();
         for(Customer customer : customers) {
-            CustomerDto customerDto = customerMapper.toDto(customer);
+            CustomerRead customerDto = customerMapper.toRead(customer);
             customerDtos.add(customerDto);
         }
         return customerDtos;

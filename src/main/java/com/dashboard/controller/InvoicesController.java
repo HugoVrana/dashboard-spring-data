@@ -1,8 +1,9 @@
 package com.dashboard.controller;
 
-import com.dashboard.dataTransferObjects.invoice.InvoiceRead;
-import com.dashboard.mappers.CustomerMapper;
-import com.dashboard.mappers.InvoiceMapper;
+import com.dashboard.dataTransferObject.customer.CustomerRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.mapper.CustomerMapper;
+import com.dashboard.mapper.InvoiceMapper;
 import com.dashboard.model.Invoice;
 import com.dashboard.service.InvoiceService;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ public class InvoicesController {
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for(Invoice invoice : invoices) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
         return invoiceReads;
@@ -45,7 +46,7 @@ public class InvoicesController {
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for(Invoice invoice : invoices) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
         return invoiceReads;
@@ -81,7 +82,8 @@ public class InvoicesController {
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for(Invoice invoice : content) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            invoiceRead.setCustomer(customerMapper.toDto(invoice.getCustomer()));
+            CustomerRead customerRead = customerMapper.toRead(invoice.getCustomer());
+            invoiceRead.setCustomer(customerRead);
             invoiceReads.add(invoiceRead);
         }
         return invoiceReads;

@@ -1,6 +1,7 @@
-package com.dashboard.mappers;
+package com.dashboard.mapper;
 
-import com.dashboard.dataTransferObjects.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.Invoice;
 import org.springframework.stereotype.Service;
 

@@ -1,9 +1,9 @@
-package com.dashboard.dataTransferObjects;
+package com.dashboard.dataTransferObject.customer;
 
 import lombok.Data;
 
 @Data
-public class CustomerDto {
+public class CustomerRead {
     public String id;
     public String name;
     public String email;

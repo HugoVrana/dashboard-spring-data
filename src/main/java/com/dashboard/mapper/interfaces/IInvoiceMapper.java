@@ -1,6 +1,6 @@
-package com.dashboard.mappers;
+package com.dashboard.mapper.interfaces;
 
-import com.dashboard.dataTransferObjects.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.model.Invoice;
 
 public interface IInvoiceMapper {
