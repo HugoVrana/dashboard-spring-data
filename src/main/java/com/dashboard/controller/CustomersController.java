@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -32,6 +33,12 @@ public class CustomersController {
             customerDtos.add(customerDto);
         }
         return customerDtos;
+    }
+
+    @GetMapping("/{id}")
+    public CustomerRead getCustomerById(String id) {
+       Optional<Customer> c = customersService.getCustomer(new org.bson.types.ObjectId(id));
+        return c.map(customerMapper::toRead).orElse(null);
     }
 
     @GetMapping("/count")
