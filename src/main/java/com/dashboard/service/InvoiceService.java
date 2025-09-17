@@ -62,7 +62,7 @@ public class InvoiceService implements IInvoiceService {
         // _id
         if (ObjectId.isValid(term)) {
             ors.add(Criteria.where("_id").is(new ObjectId(term)));
-            ors.add(Criteria.where("customer._id").is(new ObjectId(term)));
+            ors.add(Criteria.where("customer._id").is(new ObjectId(term))); // can't add another field for now
         }
 
         // amount (exact numeric)
@@ -89,15 +89,16 @@ public class InvoiceService implements IInvoiceService {
         Pattern containsCi = Pattern.compile(Pattern.quote(term), Pattern.CASE_INSENSITIVE);
         ors.add(Criteria.where("status").regex(containsCi));
         // customer id already filtered above
-        ors.add(Criteria.where("customer.name").regex(containsCi));
-        ors.add(Criteria.where("customer.email").regex(containsCi));
-
         Query q = new Query(new Criteria().orOperator(ors.toArray(new Criteria[0]))).with(pageable);
 
         List<Invoice> results = mongoTemplate.find(q, Invoice.class);
         long total = mongoTemplate.count(new Query(new Criteria().orOperator(ors.toArray(new Criteria[0]))), Invoice.class);
 
         return new PageImpl<>(results, pageable, total);
+    }
+
+    public Invoice insertInvoice(Invoice invoice) {
+        return invoiceRepository.insert(invoice);
     }
 
     private Optional<BigDecimal> parseBigDecimal(String s) {

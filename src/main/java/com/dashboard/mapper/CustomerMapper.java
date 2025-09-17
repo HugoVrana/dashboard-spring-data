@@ -10,7 +10,7 @@ public class CustomerMapper implements ICustomerMapper {
     @Override
     public CustomerRead toRead(Customer customer) {
         CustomerRead customerDto = new CustomerRead();
-        customerDto.setId(customer._id.toHexString());
+        customerDto.setId(customer.get_id().toHexString());
         customerDto.setName(customer.getName());
         customerDto.setEmail(customer.getEmail());
         customerDto.setImage_url(customer.getImage_url());
