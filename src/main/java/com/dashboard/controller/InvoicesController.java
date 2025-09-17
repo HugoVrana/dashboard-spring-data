@@ -3,13 +3,12 @@ package com.dashboard.controller;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
-import com.dashboard.mapper.CustomerMapper;
-import com.dashboard.mapper.InvoiceMapper;
+import com.dashboard.mapper.interfaces.ICustomerMapper;
+import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.Invoice;
 import com.dashboard.model.exception.NotFoundException;
-import com.dashboard.repository.IInvoiceRepository;
-import com.dashboard.service.CustomersService;
-import com.dashboard.service.InvoiceService;
+import com.dashboard.service.interfaces.ICustomerService;
+import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
@@ -25,22 +24,20 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RequestMapping("/invoices")
 public class InvoicesController {
-    private final InvoiceService invoiceService;
-    private final CustomersService customersService;
-    private final InvoiceMapper invoiceMapper;
-    private final CustomerMapper customerMapper;
-    private final IInvoiceRepository iInvoiceRepository;
 
-    public InvoicesController(InvoiceService invoiceService,
-                              CustomersService customersService,
-                              InvoiceMapper invoiceMapper,
-                              CustomerMapper customerMapper,
-                              IInvoiceRepository iInvoiceRepository) {
+    private final IInvoiceService invoiceService;
+    private final ICustomerService customersService;
+    private final IInvoiceMapper invoiceMapper;
+    private final ICustomerMapper customerMapper;
+
+    public InvoicesController(IInvoiceService invoiceService,
+                              ICustomerService customersService,
+                              IInvoiceMapper invoiceMapper,
+                              ICustomerMapper customerMapper) {
         this.invoiceService = invoiceService;
         this.customersService = customersService;
         this.invoiceMapper = invoiceMapper;
         this.customerMapper = customerMapper;
-        this.iInvoiceRepository = iInvoiceRepository;
     }
 
     @GetMapping("/")
@@ -117,7 +114,7 @@ public class InvoicesController {
         var invoice = invoiceMapper.toModel(invoiceCreate, customer);
         invoice.setDate(LocalDate.now());
 
-        invoice = iInvoiceRepository.save(invoice); // save returns entity with id populated
+        invoice = invoiceService.insertInvoice(invoice);// save returns entity with id populated
         var invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 

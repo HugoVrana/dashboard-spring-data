@@ -1,5 +1,7 @@
 package com.dashboard.controller;
 
+import com.dashboard.dataTransferObject.revenue.RevenueRead;
+import com.dashboard.mapper.interfaces.IRevenueMapper;
 import com.dashboard.model.Revenue;
 import com.dashboard.service.interfaces.IRevenueService;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,15 +14,22 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/revenues")
 public class RevenuesController {
-
     private final IRevenueService revenueService;
+    private final IRevenueMapper revenueMapper;
 
-    public RevenuesController(IRevenueService revenueService) {
+    public RevenuesController(IRevenueService revenueService, IRevenueMapper revenueMapper) {
         this.revenueService = revenueService;
+        this.revenueMapper = revenueMapper;
     }
 
     @GetMapping("/")
-    public List<Revenue> getAllRevenues() {
-        return revenueService.getAllRevenues();
+    public List<RevenueRead> getAllRevenues() {
+        List<Revenue> revenues = revenueService.getAllRevenues();
+        List<RevenueRead> revenueDtos = new java.util.ArrayList<>();
+        for(Revenue revenue : revenues) {
+            RevenueRead revenueRead = revenueMapper.toRead(revenue);
+            revenueDtos.add(revenueRead);
+        }
+        return revenueDtos;
     }
 }
