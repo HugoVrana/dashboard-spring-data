@@ -4,6 +4,7 @@ import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
 import com.dashboard.model.Revenue;
 import com.dashboard.service.interfaces.IRevenueService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +24,13 @@ public class RevenuesController {
     }
 
     @GetMapping("/")
-    public List<RevenueRead> getAllRevenues() {
+    public ResponseEntity<List<RevenueRead>> getAllRevenues() {
         List<Revenue> revenues = revenueService.getAllRevenues();
-        List<RevenueRead> revenueDtos = new java.util.ArrayList<>();
+        List<RevenueRead> revenueReads = new java.util.ArrayList<>();
         for(Revenue revenue : revenues) {
             RevenueRead revenueRead = revenueMapper.toRead(revenue);
-            revenueDtos.add(revenueRead);
+            revenueReads.add(revenueRead);
         }
-        return revenueDtos;
+        return ResponseEntity.ok(revenueReads);
     }
 }

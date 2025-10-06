@@ -7,20 +7,24 @@ import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
+import com.dashboard.model.Customer;
 import com.dashboard.model.Invoice;
 import com.dashboard.model.exception.NotFoundException;
+import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -43,7 +47,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/")
-    public List<InvoiceRead> getAllInvoices() {
+    public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
         List<Invoice> invoices = invoiceService.getAllInvoices();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for(Invoice invoice : invoices) {
@@ -51,11 +55,34 @@ public class InvoicesController {
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
-        return invoiceReads;
+        return ResponseEntity.ok(invoiceReads);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<InvoiceRead> getInvoiceById(@PathVariable("id") String id) {
+
+        if (!ObjectId.isValid(id)) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+
+        ObjectId invoiceId = new ObjectId(id);
+        Optional<Invoice> optionalInvoice = invoiceService.getInvoiceById(invoiceId);
+        if (optionalInvoice.isEmpty()) {
+            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
+        }
+
+        Invoice invoice = optionalInvoice.get();
+        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
+        invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
+        return ResponseEntity.ok(invoiceRead);
     }
 
     @GetMapping("/latest")
-    public List<InvoiceRead> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
+    public ResponseEntity<List<InvoiceRead>> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
+        if (indexFrom != null && indexTo != null && indexFrom > indexTo) {
+            throw new IllegalArgumentException("indexFrom must be less or equal to indexTo");
+        }
+
         List<Invoice> invoices = (indexFrom == null || indexTo == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
@@ -65,42 +92,50 @@ public class InvoicesController {
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
-        return invoiceReads;
+        return ResponseEntity.ok(invoiceReads);
     }
 
     @GetMapping("/count")
-    public Integer getInvoiceCount(@RequestParam(required = false) String status) {
+    public ResponseEntity<Integer> getInvoiceCount(@RequestParam(required = false) String status) {
+        List<Invoice> invoices;
         if (status == null) {
-            return invoiceService.getAllInvoices().size();
+            invoices = invoiceService.getAllInvoices();
+        } else {
+            invoices = invoiceService.getInvoicesByStatus(status);
         }
-        return invoiceService.getInvoicesByStatus(status).size();
+        Integer cout  = invoices.size();
+        return ResponseEntity.ok(cout);
     }
 
     @GetMapping("/amount")
-    public Double getInvoiceAmount(@RequestParam(required = false) String status) {
+    public ResponseEntity<Double> getInvoiceAmount(@RequestParam(required = false) String status) {
+        double amount;
         if (status == null) {
-            return invoiceService.getAllInvoices()
+            amount = invoiceService.getAllInvoices()
+                    .stream()
+                    .mapToDouble(Invoice::getAmount)
+                    .sum();
+        } else{
+            amount = invoiceService.getInvoicesByStatus(status)
                     .stream()
                     .mapToDouble(Invoice::getAmount)
                     .sum();
         }
-        return invoiceService.getInvoicesByStatus(status)
-                .stream()
-                .mapToDouble(Invoice::getAmount)
-                .sum();
+        return ResponseEntity.ok(amount);
     }
 
     @GetMapping("/pages")
-    public Integer getPages(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) Integer size) {
+    public ResponseEntity<Integer> getPages(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) Integer size) {
         if (size == null || size < 1) {
             size = 15;
         }
         Page<Invoice> invoices = invoiceService.searchInvoices(searchTerm, Pageable.ofSize(size));
-        return invoices.getTotalPages();
+        Integer pages = invoices.getTotalPages();
+        return ResponseEntity.ok(pages);
     }
 
     @PostMapping(value = "/search", consumes = "application/json")
-    public PageRead<InvoiceRead> searchInvoices(@RequestBody PageRequest pageRequest) {
+    public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@RequestBody PageRequest pageRequest) {
         Pageable pageable;
         if (pageRequest.getPage() == null || pageRequest.getPage() < 1) {
             pageable = Pageable.unpaged();
@@ -110,6 +145,10 @@ public class InvoicesController {
         }
 
         Page<Invoice> invoices =  invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
+
+        if (invoices.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
 
         PageRead<InvoiceRead> pageRead = new PageRead<>();
         List<Invoice> content = invoices.stream().toList();
@@ -125,26 +164,26 @@ public class InvoicesController {
         pageRead.setTotalPages(invoices.getTotalPages());
         pageRead.setItemsPerPage(invoices.getSize());
         pageRead.setCurrentPage(invoices.getNumber() + 1);
-        return pageRead;
+        return ResponseEntity.ok(pageRead);
     }
 
     @PostMapping()
     public ResponseEntity<InvoiceRead> createInvoice(@Valid @RequestBody InvoiceCreate invoiceCreate) {
         // At this point, customerId is present and matches ObjectId pattern.
-        var customerId = new ObjectId(invoiceCreate.getCustomer_id());
+        ObjectId customerId = new ObjectId(invoiceCreate.getCustomer_id());
 
-        var customer = customersService.getCustomer(customerId)
+        Customer customer = customersService.getCustomer(customerId)
                 .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
 
-        var invoice = invoiceMapper.toModel(invoiceCreate, customer);
+        Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
         invoice.setDate(LocalDate.now());
 
         invoice = invoiceService.insertInvoice(invoice);// save returns entity with id populated
-        var invoiceRead = invoiceMapper.toRead(invoice);
+        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
         // Build a Location like /invoices/{id}
-        var location = URI.create("/invoices/" + invoice.get_id());
+        URI location = URI.create("/invoices/" + invoice.get_id());
         return ResponseEntity.created(location).body(invoiceRead);
     }
 }
