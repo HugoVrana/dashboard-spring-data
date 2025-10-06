@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class InvoiceCreate {
     @NotNull(value = "Status is required")
     @NotEmpty
-    public String status;
+    private String status;
 
     @NotNull(value = "Amount is required")
-    public Double amount;
+    private Double amount;
 
     @NotNull(value = "Customer Id is required")
     @NotEmpty
@@ -24,5 +24,5 @@ public class InvoiceCreate {
             regexp = "^[a-fA-F0-9]{24}$",
             message = "customer_id must be a 24-char hex ObjectId"
     )
-    public String customer_id;
+    private String customer_id;
 }

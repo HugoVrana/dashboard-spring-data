@@ -7,8 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "customers")
 public class Customer {
-    public ObjectId _id;
-    public String name;
-    public String email;
-    public String image_url;
+    private ObjectId _id;
+    private String name;
+    private String email;
+    private String image_url;
+    private Audit audit;
 }

@@ -33,15 +33,15 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public List<Invoice> getAllInvoices() {
-        return invoiceRepository.findAll();
+        return invoiceRepository.queryByAudit_DeletedAt(null);
     }
 
     public  List<Invoice> getInvoicesByStatus(String status){
-        return invoiceRepository.findByStatus(status);
+        return invoiceRepository.findByStatusAndAudit_DeletedAt(status, null);
     }
 
     public List<Invoice> getLatestInvoice(Integer indexFrom, Integer indexTo) {
-        return invoiceRepository.findAll()
+        return invoiceRepository.queryByAudit_DeletedAt(null)
                 .stream()
                 .sorted(Comparator.comparing(Invoice::getDate).reversed()) // latest first
                 .skip(indexFrom)
@@ -59,6 +59,8 @@ public class InvoiceService implements IInvoiceService {
             }
 
             Query q = new Query().with(pageable);
+            q.addCriteria(Criteria.where("audit.deletedAt").is(null));
+
             List<Invoice> results = mongoTemplate.find(q, Invoice.class);
             return new PageImpl<>(results, pageable, count);
         }
@@ -105,7 +107,7 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public Optional<Invoice> getInvoiceById(ObjectId id){
-        return invoiceRepository.findById(id);
+        return invoiceRepository.findBy_idEqualsAndAudit_DeletedAt(id, null);
     }
 
     public Invoice insertInvoice(Invoice invoice) {

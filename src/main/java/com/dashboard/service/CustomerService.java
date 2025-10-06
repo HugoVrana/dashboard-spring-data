@@ -11,18 +11,20 @@ import java.util.Optional;
 
 @Service
 @Scope("singleton")
-public class CustomersService implements ICustomerService {
+public class CustomerService implements ICustomerService {
     private final ICustomersRepository customersRepository;
 
-    public CustomersService(ICustomersRepository customersRepository) {
+    public CustomerService(ICustomersRepository customersRepository) {
         this.customersRepository = customersRepository;
     }
 
     public List<Customer> getAllCustomers() {
-        return customersRepository.findAll();
+        return customersRepository.queryByAudit_DeletedAt(null);
     }
 
     public Optional<Customer> getCustomer(ObjectId id){
-        return customersRepository.findById(id);
+        return customersRepository.findBy_idEqualsAndAudit_DeletedAt(id, null);
     }
+
+    public Long getCount() {return (long) customersRepository.queryByAudit_DeletedAt(null).size();}
 }

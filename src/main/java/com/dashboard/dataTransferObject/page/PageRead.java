@@ -5,8 +5,8 @@ import java.util.List;
 
 @Data
 public class PageRead <T> {
-    public Integer totalPages;
-    public Integer currentPage;
-    public Integer itemsPerPage;
-    public List<T> data;
+    private Integer totalPages;
+    private Integer currentPage;
+    private Integer itemsPerPage;
+    private List<T> data;
 }

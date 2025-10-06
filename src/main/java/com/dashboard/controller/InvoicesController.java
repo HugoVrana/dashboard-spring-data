@@ -7,6 +7,7 @@ import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
+import com.dashboard.model.Audit;
 import com.dashboard.model.Customer;
 import com.dashboard.model.Invoice;
 import com.dashboard.model.exception.NotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class InvoicesController {
     public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
         List<Invoice> invoices = invoiceService.getAllInvoices();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for(Invoice invoice : invoices) {
+        for (Invoice invoice : invoices) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
@@ -87,7 +89,7 @@ public class InvoicesController {
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
         List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for(Invoice invoice : invoices) {
+        for (Invoice invoice : invoices) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
@@ -103,7 +105,7 @@ public class InvoicesController {
         } else {
             invoices = invoiceService.getInvoicesByStatus(status);
         }
-        Integer cout  = invoices.size();
+        Integer cout = invoices.size();
         return ResponseEntity.ok(cout);
     }
 
@@ -115,7 +117,7 @@ public class InvoicesController {
                     .stream()
                     .mapToDouble(Invoice::getAmount)
                     .sum();
-        } else{
+        } else {
             amount = invoiceService.getInvoicesByStatus(status)
                     .stream()
                     .mapToDouble(Invoice::getAmount)
@@ -139,12 +141,11 @@ public class InvoicesController {
         Pageable pageable;
         if (pageRequest.getPage() == null || pageRequest.getPage() < 1) {
             pageable = Pageable.unpaged();
-        }
-        else {
+        } else {
             pageable = Pageable.ofSize(pageRequest.getSize()).withPage(pageRequest.getPage() - 1);
         }
 
-        Page<Invoice> invoices =  invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
+        Page<Invoice> invoices = invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
 
         if (invoices.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -153,7 +154,7 @@ public class InvoicesController {
         PageRead<InvoiceRead> pageRead = new PageRead<>();
         List<Invoice> content = invoices.stream().toList();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for(Invoice invoice : content) {
+        for (Invoice invoice : content) {
             InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
             CustomerRead customerRead = customerMapper.toRead(invoice.getCustomer());
             invoiceRead.setCustomer(customerRead);
@@ -175,9 +176,15 @@ public class InvoicesController {
         Customer customer = customersService.getCustomer(customerId)
                 .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
 
+        Instant now = Instant.now();
+
+        Audit audit = new Audit();
+        audit.setCreatedAt(now);
+        audit.setUpdatedAt(now);
+
         Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
         invoice.setDate(LocalDate.now());
-
+        invoice.setAudit(audit);
         invoice = invoiceService.insertInvoice(invoice);// save returns entity with id populated
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
@@ -198,11 +205,17 @@ public class InvoicesController {
         if (optionalCustomer.isEmpty()) {
             throw new ResourceNotFoundException("Customer with id " + customerId + " not found");
         }
+
+        Instant now = Instant.now();
+
         Customer customer = optionalCustomer.get();
         Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
         invoice.set_id(new ObjectId(id));
         invoice.setCustomer(customer);
         invoice.setDate(LocalDate.now());
+
+        invoice.getAudit().setUpdatedAt(now);
+
         invoice = invoiceService.updateInvoice(invoice);
 
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
@@ -211,5 +224,33 @@ public class InvoicesController {
         // Build a Location like /invoices/{id}
         URI location = URI.create("/invoices/" + invoice.get_id());
         return ResponseEntity.created(location).body(invoiceRead);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInvoice(@PathVariable("id") String id) {
+        if (!ObjectId.isValid(id)) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+        ObjectId invoiceId = new ObjectId(id);
+        Optional<Invoice> optionalInvoice = invoiceService.getInvoiceById(invoiceId);
+        if (optionalInvoice.isEmpty()) {
+            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
+        }
+
+        Invoice invoice = optionalInvoice.get();
+        Audit audit = invoice.getAudit();
+        audit.setDeletedAt(Instant.now());
+        invoice.setAudit(audit);
+        invoiceService.updateInvoice(invoice);
+
+        optionalInvoice = invoiceService.getInvoiceById(invoiceId);
+        if (optionalInvoice.isEmpty()) {
+            throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
+        }
+        Invoice invoiceDeleted = optionalInvoice.get();
+        if (invoiceDeleted.getAudit().getDeletedAt() == null) {
+            throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

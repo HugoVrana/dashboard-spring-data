@@ -7,7 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "revenues")
 public class Revenue {
-    public ObjectId _id;
-    public String month;
-    public Double revenue;
+    private ObjectId _id;
+    private String month;
+    private Double revenue;
+    private Audit audit;
 }

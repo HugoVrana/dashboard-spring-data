@@ -17,6 +17,6 @@ public class RevenueService implements IRevenueService {
     }
 
     public List<Revenue> getAllRevenues() {
-        return revenueRepository.findAll();
+        return revenueRepository.queryByAudit_DeletedAt(null);
     }
 }
