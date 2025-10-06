@@ -51,9 +51,16 @@ public class InvoiceService implements IInvoiceService {
 
     public Page<Invoice> searchInvoices(String rawTerm, Pageable pageable) {
         if (rawTerm == null || rawTerm.trim().isEmpty()) {
-            List<Invoice> allInvoices = invoiceRepository.findAll();
-            long count = allInvoices.size();
-            return new PageImpl<>(allInvoices, pageable, count);
+            long count = invoiceRepository.count();
+
+            if (pageable.isUnpaged()) {
+                List<Invoice> allInvoices = invoiceRepository.findAll();
+                return new PageImpl<>(allInvoices, pageable, count);
+            }
+
+            Query q = new Query().with(pageable);
+            List<Invoice> results = mongoTemplate.find(q, Invoice.class);
+            return new PageImpl<>(results, pageable, count);
         }
 
         String term = rawTerm.trim();
