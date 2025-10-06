@@ -112,6 +112,10 @@ public class InvoiceService implements IInvoiceService {
         return invoiceRepository.insert(invoice);
     }
 
+    public Invoice updateInvoice(Invoice invoice) {
+        return invoiceRepository.save(invoice);
+    }
+
     private Optional<BigDecimal> parseBigDecimal(String s) {
         try { return Optional.of(new BigDecimal(s)); } catch (Exception e) { return Optional.empty(); }
     }

@@ -15,4 +15,5 @@ public interface IInvoiceService {
     Page<Invoice> searchInvoices(String rawTerm, Pageable pageable);
     Optional<Invoice> getInvoiceById(ObjectId id);
     Invoice insertInvoice(Invoice invoice);
+    Invoice updateInvoice(Invoice invoice);
 }

@@ -186,4 +186,30 @@ public class InvoicesController {
         URI location = URI.create("/invoices/" + invoice.get_id());
         return ResponseEntity.created(location).body(invoiceRead);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceCreate invoiceUpdate) {
+        if (!ObjectId.isValid(id)) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+
+        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomer_id());
+        Optional<Customer> optionalCustomer = customersService.getCustomer(customerId);
+        if (optionalCustomer.isEmpty()) {
+            throw new ResourceNotFoundException("Customer with id " + customerId + " not found");
+        }
+        Customer customer = optionalCustomer.get();
+        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
+        invoice.set_id(new ObjectId(id));
+        invoice.setCustomer(customer);
+        invoice.setDate(LocalDate.now());
+        invoice = invoiceService.updateInvoice(invoice);
+
+        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
+        invoiceRead.setCustomer(customerMapper.toRead(customer));
+
+        // Build a Location like /invoices/{id}
+        URI location = URI.create("/invoices/" + invoice.get_id());
+        return ResponseEntity.created(location).body(invoiceRead);
+    }
 }
