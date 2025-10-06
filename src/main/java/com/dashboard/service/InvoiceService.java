@@ -104,6 +104,10 @@ public class InvoiceService implements IInvoiceService {
         return new PageImpl<>(results, pageable, total);
     }
 
+    public Optional<Invoice> getInvoiceById(ObjectId id){
+        return invoiceRepository.findById(id);
+    }
+
     public Invoice insertInvoice(Invoice invoice) {
         return invoiceRepository.insert(invoice);
     }

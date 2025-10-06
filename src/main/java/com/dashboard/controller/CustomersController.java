@@ -35,6 +35,7 @@ public class CustomersController {
         return customerDtos;
     }
 
+    // does not work
     @GetMapping("/{id}")
     public CustomerRead getCustomerById(String id) {
        Optional<Customer> c = customersService.getCustomer(new org.bson.types.ObjectId(id));

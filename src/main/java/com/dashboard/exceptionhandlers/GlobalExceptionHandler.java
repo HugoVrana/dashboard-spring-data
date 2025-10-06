@@ -1,8 +1,10 @@
 package com.dashboard.exceptionhandlers;
 
+import com.dashboard.model.exception.InvalidRequestException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,7 +20,6 @@ public class GlobalExceptionHandler {
         pd.setTitle("Validation failed");
         // Optional: aggregate field errors into pd.setProperty("errors", ...)
         pd.setDetail(ex.getBindingResult().getAllErrors().getFirst().getDefaultMessage());
-        pd.setType(URI.create("https://example.com/problems/validation-error"));
         return pd;
     }
 
@@ -30,4 +31,10 @@ public class GlobalExceptionHandler {
         pd.setType(URI.create("https://example.com/problems/not-found"));
         return pd;
     }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<String> handleInvalidRequest(InvalidRequestException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 }
