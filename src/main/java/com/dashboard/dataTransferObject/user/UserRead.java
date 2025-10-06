@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class UserRead {
-    public String id;
-    public String name;
-    public String email;
-    public String password;
+    private String id;
+    private String name;
+    private String email;
+    private String password;
 }

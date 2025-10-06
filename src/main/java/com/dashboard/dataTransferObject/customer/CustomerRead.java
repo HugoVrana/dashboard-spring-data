@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class CustomerRead {
-    public String id;
-    public String name;
-    public String email;
-    public String image_url;
+    private String id;
+    private String name;
+    private String email;
+    private String image_url;
 }

@@ -11,10 +11,11 @@ import java.time.LocalDate;
 @Document(collection = "invoices")
 public class Invoice {
     @Id
-    public ObjectId _id;
+    private ObjectId _id;
     @DBRef
-    public Customer customer;
-    public Double amount;
-    public LocalDate date;
-    public String status;
+    private Customer customer;
+    private Double amount;
+    private LocalDate date;
+    private String status;
+    private Audit audit;
 }

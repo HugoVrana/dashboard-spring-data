@@ -7,8 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "users")
 public class User {
-    public ObjectId _id;
-    public String name;
-    public String email;
-    public String password;
+    private ObjectId _id;
+    private String name;
+    private String email;
+    private String password;
+    private Audit audit;
 }

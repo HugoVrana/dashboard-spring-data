@@ -6,9 +6,9 @@ import java.time.LocalDate;
 
 @Data
 public class InvoiceRead {
-    public String id;
-    public String status;
-    public Double amount;
-    public LocalDate date;
-    public CustomerRead customer;
+    private String id;
+    private String status;
+    private Double amount;
+    private LocalDate date;
+    private CustomerRead customer;
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RevenueRead {
-    public String id;
-    public String month;
-    public Double revenue;
+    private String id;
+    private String month;
+    private Double revenue;
 }
