@@ -1,5 +1,7 @@
 package com.dashboard.controller;
 
+import com.dashboard.dataTransferObject.page.PageRead;
+import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
@@ -10,15 +12,15 @@ import com.dashboard.model.exception.NotFoundException;
 import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.time.LocalDate;
-import java.util.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -88,10 +90,28 @@ public class InvoicesController {
                 .sum();
     }
 
-    @GetMapping("/search")
-    public List<InvoiceRead> searchInvoices(@RequestParam String searchTerm) {
-        Pageable pageable = Pageable.unpaged();
-        Page<Invoice> invoices =  invoiceService.searchInvoices(searchTerm, pageable);
+    @GetMapping("/pages")
+    public Integer getPages(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) Integer size) {
+        if (size == null || size < 1) {
+            size = 15;
+        }
+        Page<Invoice> invoices = invoiceService.searchInvoices(searchTerm, Pageable.ofSize(size));
+        return invoices.getTotalPages();
+    }
+
+    @PostMapping(value = "/search", consumes = "application/json")
+    public PageRead<InvoiceRead> searchInvoices(@RequestBody PageRequest pageRequest) {
+        Pageable pageable;
+        if (pageRequest.getPage() == null || pageRequest.getPage() < 1) {
+            pageable = Pageable.unpaged();
+        }
+        else {
+            pageable = Pageable.ofSize(pageRequest.getSize()).withPage(pageRequest.getPage() - 1);
+        }
+
+        Page<Invoice> invoices =  invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
+
+        PageRead<InvoiceRead> pageRead = new PageRead<>();
         List<Invoice> content = invoices.stream().toList();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for(Invoice invoice : content) {
@@ -100,7 +120,12 @@ public class InvoicesController {
             invoiceRead.setCustomer(customerRead);
             invoiceReads.add(invoiceRead);
         }
-        return invoiceReads;
+
+        pageRead.setData(invoiceReads);
+        pageRead.setTotalPages(invoices.getTotalPages());
+        pageRead.setItemsPerPage(invoices.getSize());
+        pageRead.setCurrentPage(invoices.getNumber() + 1);
+        return pageRead;
     }
 
     @PostMapping()
