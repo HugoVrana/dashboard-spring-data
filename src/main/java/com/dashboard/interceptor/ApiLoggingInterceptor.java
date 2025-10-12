@@ -1,6 +1,7 @@
 package com.dashboard.interceptor;
 
 import com.dashboard.logging.GrafanaHttpClient;
+import com.dashboard.logging.LogBuilderHelper;
 import com.dashboard.model.log.ApiCallLog;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,52 +45,33 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                                 @NotNull Object handler, Exception ex) {
-        try {
-            ApiCallLog log = captureApiCall(request, response, ex);
-            grafanaHttpClient.send(log);
-        } catch (Exception e) {
-            log.error("Failed to log API call", e);
+        // Only log if NO exception occurred (exceptions are handled by GlobalExceptionHandler)
+        if (ex == null) {
+            try {
+                ApiCallLog log = captureApiCall(request, response);
+                grafanaHttpClient.send(log);
+            } catch (Exception e) {
+                log.error("Failed to log API call", e);
+            }
         }
     }
 
-    private ApiCallLog captureApiCall(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+    private ApiCallLog captureApiCall(HttpServletRequest request, HttpServletResponse response) {
         Instant startTime = (Instant) request.getAttribute(REQUEST_START_TIME);
         Instant endTime = Instant.now();
         Long durationMs = startTime != null ?
                 java.time.Duration.between(startTime, endTime).toMillis() : null;
 
-        ApiCallLog.ApiCallLogBuilder builder = ApiCallLog.builder()
-                // Request Information
-                .requestId((String) request.getAttribute(REQUEST_ID))
-                .method(request.getMethod())
-                .endpoint(request.getRequestURI())
-                .fullUrl(getFullUrl(request))
+        Instant timestamp = startTime != null ? startTime : Instant.now();
+        ApiCallLog.ApiCallLogBuilder builder = LogBuilderHelper.buildBaseLog(
+                request,
+                response.getStatus(),
+                timestamp,
+                durationMs
+        );
 
-                // Timing Information
-                .timestamp(startTime != null ? startTime : Instant.now())
-                .durationMs(durationMs)
-
-                // Response Information
-                .statusCode(response.getStatus())
-                .statusMessage(getStatusMessage(response.getStatus()))
-
-                // Client Information
-                .clientIp(getClientIp(request))
-                .userAgent(request.getHeader("User-Agent"))
-                .userId(extractUserId(request))
-
-                // Additional Context
-                .headers(extractHeaders(request))
-                .service("Dashboard API - Spring")
-                .environment(System.getProperty("spring.profiles.active", "dev"))
-                .version("1.0.0");
-
-        // Handle errors
-        if (ex != null) {
-            builder.errorMessage(ex.getMessage())
-                    .errorType(ex.getClass().getSimpleName())
-                    .stackTrace(getStackTrace(ex));
-        }
+        builder.userId(extractUserId(request))
+                .headers(extractHeaders(request));
 
         // Capture request/response bodies if wrapped
         if (request instanceof ContentCachingRequestWrapper) {
@@ -103,30 +85,6 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         }
 
         return builder.build();
-    }
-
-    private String getFullUrl(HttpServletRequest request) {
-        StringBuilder url = new StringBuilder(request.getRequestURL());
-        String queryString = request.getQueryString();
-        if (queryString != null) {
-            url.append("?").append(queryString);
-        }
-        return url.toString();
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        // X-Forwarded-For can contain multiple IPs, take the first one
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip;
     }
 
     private String extractUserId(HttpServletRequest request) {
@@ -178,7 +136,6 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         return null;
     }
 
-
     private Map<String, Object> extractResponseBody(ContentCachingResponseWrapper response) {
         try {
             byte[] content = response.getContentAsByteArray();
@@ -198,34 +155,5 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
 
     private Long getResponseSize(ContentCachingResponseWrapper response) {
         return (long) response.getContentAsByteArray().length;
-    }
-
-    private String getStatusMessage(int statusCode) {
-        return switch (statusCode / 100) {
-            case 2 -> "Success";
-            case 3 -> "Redirect";
-            case 4 -> "Client Error";
-            case 5 -> "Server Error";
-            default -> "Unknown";
-        };
-    }
-
-    private String getStackTrace(Exception ex) {
-        // Limit stack trace size for logging
-        StringBuilder sb = new StringBuilder();
-        sb.append(ex.toString()).append("\n");
-
-        StackTraceElement[] elements = ex.getStackTrace();
-        int limit = Math.min(elements.length, 10); // Only first 10 lines
-
-        for (int i = 0; i < limit; i++) {
-            sb.append("\tat ").append(elements[i]).append("\n");
-        }
-
-        if (elements.length > limit) {
-            sb.append("\t... ").append(elements.length - limit).append(" more");
-        }
-
-        return sb.toString();
     }
 }
