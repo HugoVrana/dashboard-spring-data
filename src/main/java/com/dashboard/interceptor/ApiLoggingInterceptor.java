@@ -2,10 +2,12 @@ package com.dashboard.interceptor;
 
 import com.dashboard.logging.GrafanaHttpClient;
 import com.dashboard.model.log.ApiCallLog;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -32,7 +34,7 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
         // Store start time and request ID for duration calculation
         request.setAttribute(REQUEST_START_TIME, Instant.now());
         request.setAttribute(REQUEST_ID, UUID.randomUUID().toString());
@@ -40,8 +42,8 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
-                                Object handler, Exception ex) {
+    public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+                                @NotNull Object handler, Exception ex) {
         try {
             ApiCallLog log = captureApiCall(request, response, ex);
             grafanaHttpClient.send(log);
@@ -128,6 +130,9 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
     }
 
     private String extractUserId(HttpServletRequest request) {
+        if (request.getUserPrincipal() != null) {
+            return request.getUserPrincipal().getName(); // this is just to we make warnings shut up
+        }
         // Example for JWT:
         // String authHeader = request.getHeader("Authorization");
         // if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -163,8 +168,9 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         try {
             byte[] content = request.getContentAsByteArray();
             if (content.length > 0) {
-                String body = new String(content, request.getCharacterEncoding());
-                return objectMapper.readValue(body, Map.class);
+                String characterEncoding = request.getCharacterEncoding();
+                String requestBodyAsString = new String(content, characterEncoding);
+                return objectMapper.readValue(requestBodyAsString, new TypeReference<>() {});
             }
         } catch (Exception e) {
             log.debug("Could not parse request body", e);
@@ -172,12 +178,13 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         return null;
     }
 
+
     private Map<String, Object> extractResponseBody(ContentCachingResponseWrapper response) {
         try {
             byte[] content = response.getContentAsByteArray();
             if (content.length > 0) {
                 String body = new String(content, response.getCharacterEncoding());
-                return objectMapper.readValue(body, Map.class);
+                return objectMapper.readValue(body, new TypeReference<>(){});
             }
         } catch (Exception e) {
             log.debug("Could not parse response body", e);
