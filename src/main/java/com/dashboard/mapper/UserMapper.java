@@ -2,7 +2,7 @@ package com.dashboard.mapper;
 
 import com.dashboard.dataTransferObject.user.UserRead;
 import com.dashboard.mapper.interfaces.IUserMapper;
-import com.dashboard.model.User;
+import com.dashboard.model.entities.User;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,6 +1,6 @@
 package com.dashboard.repository;
 
-import com.dashboard.model.Revenue;
+import com.dashboard.model.entities.Revenue;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.time.Instant;

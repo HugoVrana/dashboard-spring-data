@@ -2,7 +2,7 @@ package com.dashboard.controller;
 
 import com.dashboard.dataTransferObject.user.UserRead;
 import com.dashboard.mapper.interfaces.IUserMapper;
-import com.dashboard.model.User;
+import com.dashboard.model.entities.User;
 import com.dashboard.service.interfaces.IUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;

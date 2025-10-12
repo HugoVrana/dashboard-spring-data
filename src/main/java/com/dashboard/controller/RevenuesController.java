@@ -2,7 +2,7 @@ package com.dashboard.controller;
 
 import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
-import com.dashboard.model.Revenue;
+import com.dashboard.model.entities.Revenue;
 import com.dashboard.service.interfaces.IRevenueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;

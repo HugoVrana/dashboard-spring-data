@@ -1,6 +1,6 @@
 package com.dashboard.service;
 
-import com.dashboard.model.Customer;
+import com.dashboard.model.entities.Customer;
 import com.dashboard.repository.ICustomersRepository;
 import com.dashboard.service.interfaces.ICustomerService;
 import org.bson.types.ObjectId;

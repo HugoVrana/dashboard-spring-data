@@ -1,15 +1,17 @@
-package com.dashboard.model;
+package com.dashboard.model.entities;
 
 import lombok.Data;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "users")
-public class User {
+@Document(collection = "customers")
+public class Customer {
+    @Id
     private ObjectId _id;
     private String name;
     private String email;
-    private String password;
+    private String image_url;
     private Audit audit;
 }

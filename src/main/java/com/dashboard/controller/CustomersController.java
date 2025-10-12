@@ -1,9 +1,8 @@
 package com.dashboard.controller;
 
 import com.dashboard.dataTransferObject.customer.CustomerRead;
-import com.dashboard.logging.GrafanaHttpClient;
 import com.dashboard.mapper.CustomerMapper;
-import com.dashboard.model.Customer;
+import com.dashboard.model.entities.Customer;
 import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.ICustomerService;
 import org.bson.types.ObjectId;
@@ -20,12 +19,10 @@ public class CustomersController {
 
     private final ICustomerService customersService;
     private final CustomerMapper customerMapper;
-    private final GrafanaHttpClient grafanaHttpClient;
 
-    public CustomersController(ICustomerService customersService, CustomerMapper customerMapper, GrafanaHttpClient grafanaHttpClient) {
+    public CustomersController(ICustomerService customersService, CustomerMapper customerMapper) {
         this.customersService = customersService;
         this.customerMapper = customerMapper;
-        this.grafanaHttpClient = grafanaHttpClient;
     }
 
     @GetMapping("/")
@@ -36,8 +33,6 @@ public class CustomersController {
             CustomerRead customerDto = customerMapper.toRead(customer);
             customerDtos.add(customerDto);
         }
-
-        grafanaHttpClient.send();
         return ResponseEntity.ok(customerDtos);
     }
 
