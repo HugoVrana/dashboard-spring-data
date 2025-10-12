@@ -1,6 +1,6 @@
 package com.dashboard.service;
 
-import com.dashboard.model.Invoice;
+import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.service.interfaces.IInvoiceService;
 import org.bson.types.ObjectId;

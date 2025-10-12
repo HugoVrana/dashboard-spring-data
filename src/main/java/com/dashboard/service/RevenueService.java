@@ -1,6 +1,6 @@
 package com.dashboard.service;
 
-import com.dashboard.model.Revenue;
+import com.dashboard.model.entities.Revenue;
 import com.dashboard.repository.IRevenueRepository;
 import com.dashboard.service.interfaces.IRevenueService;
 import org.springframework.context.annotation.Scope;

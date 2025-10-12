@@ -1,6 +1,6 @@
 package com.dashboard.service;
 
-import com.dashboard.model.User;
+import com.dashboard.model.entities.User;
 import com.dashboard.repository.IUserRepository;
 import com.dashboard.service.interfaces.IUserService;
 import org.springframework.context.annotation.Scope;

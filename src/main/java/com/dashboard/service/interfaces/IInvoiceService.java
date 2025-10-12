@@ -1,6 +1,6 @@
 package com.dashboard.service.interfaces;
 
-import com.dashboard.model.Invoice;
+import com.dashboard.model.entities.Invoice;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

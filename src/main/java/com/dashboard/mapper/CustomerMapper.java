@@ -2,7 +2,7 @@ package com.dashboard.mapper;
 
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
-import com.dashboard.model.Customer;
+import com.dashboard.model.entities.Customer;
 import org.springframework.stereotype.Service;
 
 @Service

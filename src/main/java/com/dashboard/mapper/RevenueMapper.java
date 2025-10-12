@@ -2,7 +2,7 @@ package com.dashboard.mapper;
 
 import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
-import com.dashboard.model.Revenue;
+import com.dashboard.model.entities.Revenue;
 import org.springframework.stereotype.Service;
 
 @Service

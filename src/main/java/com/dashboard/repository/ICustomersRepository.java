@@ -1,6 +1,6 @@
 package com.dashboard.repository;
 
-import com.dashboard.model.Customer;
+import com.dashboard.model.entities.Customer;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

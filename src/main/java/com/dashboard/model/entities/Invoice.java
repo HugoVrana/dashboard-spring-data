@@ -1,4 +1,4 @@
-package com.dashboard.model;
+package com.dashboard.model.entities;
 
 import lombok.Data;
 import org.bson.types.ObjectId;
