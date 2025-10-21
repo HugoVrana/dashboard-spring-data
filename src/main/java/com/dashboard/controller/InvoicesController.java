@@ -1,10 +1,11 @@
 package com.dashboard.controller;
 
-import com.dashboard.dataTransferObject.page.PageRead;
-import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
+import com.dashboard.dataTransferObject.page.PageRead;
+import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.entities.Audit;
@@ -195,9 +196,15 @@ public class InvoicesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceCreate invoiceUpdate) {
+    public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceUpdate invoiceUpdate) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
+        }
+        ObjectId invoiceId = new ObjectId(id);
+
+        Optional<Invoice> unupdatedOptionalInvoice = invoiceService.getInvoiceById(invoiceId);
+        if (unupdatedOptionalInvoice.isEmpty()) {
+            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
         }
 
         ObjectId customerId = new ObjectId(invoiceUpdate.getCustomer_id());
@@ -206,15 +213,14 @@ public class InvoicesController {
             throw new ResourceNotFoundException("Customer with id " + customerId + " not found");
         }
 
-        Instant now = Instant.now();
+        Invoice unupdatedInvoice = unupdatedOptionalInvoice.get();
+        Audit newAudit = unupdatedInvoice.getAudit();
+        newAudit.setUpdatedAt(Instant.now());
 
         Customer customer = optionalCustomer.get();
         Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
-        invoice.set_id(new ObjectId(id));
-        invoice.setCustomer(customer);
-        invoice.setDate(LocalDate.now());
-
-        invoice.getAudit().setUpdatedAt(now);
+        invoice.setDate(unupdatedInvoice.getDate());
+        invoice.setAudit(newAudit);
 
         invoice = invoiceService.updateInvoice(invoice);
 

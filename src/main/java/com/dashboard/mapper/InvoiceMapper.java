@@ -2,9 +2,11 @@ package com.dashboard.mapper;
 
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,5 +31,13 @@ public class InvoiceMapper implements IInvoiceMapper {
         return invoice;
     }
 
-
+    @Override
+    public Invoice toModel(InvoiceUpdate invoiceUpdate, Customer customer) {
+        Invoice invoice = new Invoice();
+        invoice.set_id(new ObjectId(invoiceUpdate.getInvoice_id()));
+        invoice.setStatus(invoiceUpdate.getStatus());
+        invoice.setAmount(invoiceUpdate.getAmount());
+        invoice.setCustomer(customer);
+        return invoice;
+    }
 }
