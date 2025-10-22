@@ -19,12 +19,12 @@ public class CustomerService implements ICustomerService {
     }
 
     public List<Customer> getAllCustomers() {
-        return customersRepository.queryByAudit_DeletedAt(null);
+        return customersRepository.findByAudit_DeletedAtIsNull();
     }
 
     public Optional<Customer> getCustomer(ObjectId id){
-        return customersRepository.findBy_idEqualsAndAudit_DeletedAt(id, null);
+        return customersRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(id);
     }
 
-    public Long getCount() {return (long) customersRepository.queryByAudit_DeletedAt(null).size();}
+    public Long getCount() {return (long) customersRepository.countByAudit_DeletedAtIsNull();}
 }

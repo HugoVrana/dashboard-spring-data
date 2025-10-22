@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class RevenuesController {
     @GetMapping("/")
     public ResponseEntity<List<RevenueRead>> getAllRevenues() {
         List<Revenue> revenues = revenueService.getAllRevenues();
-        List<RevenueRead> revenueReads = new java.util.ArrayList<>();
+        List<RevenueRead> revenueReads = new ArrayList<>();
         for(Revenue revenue : revenues) {
             RevenueRead revenueRead = revenueMapper.toRead(revenue);
             revenueReads.add(revenueRead);

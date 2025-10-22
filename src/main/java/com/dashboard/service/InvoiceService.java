@@ -33,15 +33,15 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public List<Invoice> getAllInvoices() {
-        return invoiceRepository.queryByAudit_DeletedAt(null);
+        return invoiceRepository.findByAudit_DeletedAtIsNull();
     }
 
     public  List<Invoice> getInvoicesByStatus(String status){
-        return invoiceRepository.findByStatusAndAudit_DeletedAt(status, null);
+        return invoiceRepository.findByStatusAndAudit_DeletedAtIsNull(status);
     }
 
     public List<Invoice> getLatestInvoice(Integer indexFrom, Integer indexTo) {
-        return invoiceRepository.queryByAudit_DeletedAt(null)
+        return invoiceRepository.findByAudit_DeletedAtIsNull()
                 .stream()
                 .sorted(Comparator.comparing(Invoice::getDate).reversed()) // latest first
                 .skip(indexFrom)
@@ -107,7 +107,7 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public Optional<Invoice> getInvoiceById(ObjectId id){
-        return invoiceRepository.findBy_idEqualsAndAudit_DeletedAt(id, null);
+        return invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(id);
     }
 
     public Invoice insertInvoice(Invoice invoice) {
