@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface IUserRepository extends MongoRepository<User, ObjectId> {
     List<User> queryByAudit_DeletedAtIsNull();
     Optional<User> queryUserBy_idAndAudit_DeletedAtIsNull(ObjectId id);
+    Optional<User> queryUserByEmailAndAudit_DeletedAtIsNull(String email);
 }

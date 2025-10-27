@@ -12,4 +12,5 @@ public interface IUserService {
     List<User> getAllUsers();
     Optional<User> getUserById(ObjectId id);
     Page<User> searchUsers(String rawTerm, Pageable pageable);
+    Optional<User> getUserByEmail(String email);
 }

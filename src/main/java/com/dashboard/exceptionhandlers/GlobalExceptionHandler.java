@@ -3,6 +3,7 @@ package com.dashboard.exceptionhandlers;
 import com.dashboard.logging.GrafanaHttpClient;
 import com.dashboard.logging.LogBuilderHelper;
 import com.dashboard.model.exception.InvalidRequestException;
+import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.model.log.ApiCallLog;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<String> handleInvalidRequest(InvalidRequestException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ignoredEx) {
+        return ResponseEntity.notFound().build();
     }
 
     // Handle all exceptions
