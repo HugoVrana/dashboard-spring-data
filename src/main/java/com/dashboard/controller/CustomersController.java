@@ -36,7 +36,6 @@ public class CustomersController {
         return ResponseEntity.ok(customerDtos);
     }
 
-    // does not work
     @GetMapping("/{id}")
     public ResponseEntity<CustomerRead> getCustomerById(@PathVariable("id") String id) {
         if(!ObjectId.isValid(id)) {

@@ -34,7 +34,6 @@ public class UserService implements IUserService {
         return userRepository.queryUserBy_idAndAudit_DeletedAtIsNull(id);
     }
 
-    @Override
     public Page<User> searchUsers(String rawTerm, Pageable pageable) {
         if (rawTerm == null || rawTerm.isEmpty()) {
             long count = userRepository.count();
@@ -53,14 +52,23 @@ public class UserService implements IUserService {
 
         Query q = new Query().with(pageable);
         q.addCriteria(Criteria.where("audit.deletedAt").is(null));
-        q.addCriteria(Criteria.where("_id").is(new ObjectId(rawTerm))
-                .orOperator(Criteria.where("name").is(rawTerm))
-                .orOperator(Criteria.where("email").is(rawTerm)));
+        if (ObjectId.isValid(rawTerm)) {
+            q.addCriteria(new Criteria().orOperator(
+                    Criteria.where("_id").is(new ObjectId(rawTerm)),
+                    Criteria.where("name").is(rawTerm),
+                    Criteria.where("email").is(rawTerm)
+            ));
+        } else {
+            q.addCriteria(Criteria.where("name").is(rawTerm)
+                    .orOperator(Criteria.where("email").is(rawTerm)));
+        }
 
         List<User> results = mongoTemplate.find(q, User.class);
         long total = mongoTemplate.count(q, User.class);
         return new PageImpl<>(results, pageable, total);
     }
 
-
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.queryUserByEmailAndAudit_DeletedAtIsNull(email);
+    }
 }

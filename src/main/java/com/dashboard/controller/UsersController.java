@@ -7,6 +7,7 @@ import com.dashboard.mapper.interfaces.IUserMapper;
 import com.dashboard.model.entities.User;
 import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.IUserService;
+import jakarta.validation.constraints.Email;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,17 @@ public class UsersController {
             throw new ResourceNotFoundException("User with id " + id + " not found");
         }
 
+        User user = optionalUser.get();
+        UserRead userRead = userMapper.toRead(user);
+        return ResponseEntity.ok(userRead);
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserRead> getUserByEmail(@PathVariable("email") @Email String email) {
+        Optional<User> optionalUser = userService.getUserByEmail(email);
+        if (optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("User with email " + email + " not found");
+        }
         User user = optionalUser.get();
         UserRead userRead = userMapper.toRead(user);
         return ResponseEntity.ok(userRead);
