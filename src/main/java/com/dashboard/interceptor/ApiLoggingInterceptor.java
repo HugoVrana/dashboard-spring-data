@@ -1,12 +1,13 @@
 package com.dashboard.interceptor;
 
-import com.dashboard.logging.GrafanaHttpClient;
-import com.dashboard.logging.LogBuilderHelper;
-import com.dashboard.model.log.ApiCallLog;
+import com.dashboard.common.logging.GrafanaHttpClient;
+import com.dashboard.common.logging.LogBuilderHelper;
+import com.dashboard.common.model.log.ApiCallLog;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -21,22 +22,17 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ApiLoggingInterceptor implements HandlerInterceptor {
 
     private static final String REQUEST_START_TIME = "requestStartTime";
     private static final String REQUEST_ID = "requestId";
 
-    private final GrafanaHttpClient grafanaHttpClient;
     private final ObjectMapper objectMapper;
-
-    public ApiLoggingInterceptor(GrafanaHttpClient grafanaHttpClient, ObjectMapper objectMapper) {
-        this.grafanaHttpClient = grafanaHttpClient;
-        this.objectMapper = objectMapper;
-    }
+    private final GrafanaHttpClient grafanaHttpClient;
 
     @Override
     public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
-        // Store start time and request ID for duration calculation
         request.setAttribute(REQUEST_START_TIME, Instant.now());
         request.setAttribute(REQUEST_ID, UUID.randomUUID().toString());
         return true;
@@ -45,7 +41,6 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                                 @NotNull Object handler, Exception ex) {
-        // Only log if NO exception occurred (exceptions are handled by GlobalExceptionHandler)
         if (ex == null) {
             try {
                 ApiCallLog log = captureApiCall(request, response);
@@ -64,6 +59,7 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
 
         Instant timestamp = startTime != null ? startTime : Instant.now();
         ApiCallLog.ApiCallLogBuilder builder = LogBuilderHelper.buildBaseLog(
+                "spring-dashboard",
                 request,
                 response.getStatus(),
                 timestamp,
@@ -71,9 +67,9 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         );
 
         builder.userId(extractUserId(request))
-                .headers(extractHeaders(request));
+                .headers(extractHeaders(request))
+                .level(determineLogLevel(response.getStatus()));
 
-        // Capture request/response bodies if wrapped
         if (request instanceof ContentCachingRequestWrapper) {
             builder.requestBody(extractRequestBody((ContentCachingRequestWrapper) request))
                     .requestSize(getRequestSize((ContentCachingRequestWrapper) request));
@@ -87,15 +83,16 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
         return builder.build();
     }
 
+    private String determineLogLevel(int statusCode) {
+        if (statusCode >= 500) return "error";
+        if (statusCode >= 400) return "warn";
+        return "info";
+    }
+
     private String extractUserId(HttpServletRequest request) {
         if (request.getUserPrincipal() != null) {
-            return request.getUserPrincipal().getName(); // this is just to we make warnings shut up
+            return request.getUserPrincipal().getName();
         }
-        // Example for JWT:
-        // String authHeader = request.getHeader("Authorization");
-        // if (authHeader != null && authHeader.startsWith("Bearer ")) {
-        //     return extractUserIdFromJwt(authHeader.substring(7));
-        // }
         return null;
     }
 
@@ -105,7 +102,6 @@ public class ApiLoggingInterceptor implements HandlerInterceptor {
 
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            // Filter out sensitive headers
             if (!isSensitiveHeader(headerName)) {
                 headers.put(headerName, request.getHeader(headerName));
             }

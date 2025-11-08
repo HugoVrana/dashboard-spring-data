@@ -1,10 +1,10 @@
 package com.dashboard.exceptionhandlers;
 
-import com.dashboard.logging.GrafanaHttpClient;
-import com.dashboard.logging.LogBuilderHelper;
+import com.dashboard.common.logging.GrafanaHttpClient;
+import com.dashboard.common.logging.LogBuilderHelper;
+import com.dashboard.common.model.log.ApiCallLog;
 import com.dashboard.model.exception.InvalidRequestException;
 import com.dashboard.model.exception.ResourceNotFoundException;
-import com.dashboard.model.log.ApiCallLog;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         // Log to Grafana
         try {
             Instant timestamp = Instant.now();
-            ApiCallLog.ApiCallLogBuilder builder = LogBuilderHelper.buildBaseLog(request, HttpStatus.INTERNAL_SERVER_ERROR.value(), timestamp, null);
+            ApiCallLog.ApiCallLogBuilder builder = LogBuilderHelper.buildBaseLog("spring-dashboard", request, HttpStatus.INTERNAL_SERVER_ERROR.value(), timestamp, null);
             ApiCallLog logEntry = builder
                     .errorMessage(ex.getMessage())
                     .errorType(ex.getClass().getSimpleName())
