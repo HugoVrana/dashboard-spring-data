@@ -32,7 +32,7 @@ cache:
 before_script:
   - mkdir -p ~/.m2
   - |
-    cat > ~/.m2/settings.xml <<'XML'
+    cat > ~/.m2/settings.xml <<XML
     <settings>
       <profiles>
         <profile>
@@ -40,7 +40,7 @@ before_script:
           <repositories>
             <repository>
               <id>common-lib</id>
-              <url>https://gitlab.com/api/v4/groups/118282650/-/packages/maven</url>
+              <url>https://gitlab.com/api/v4/groups/${GROUP_ID}/-/packages/maven</url>
             </repository>
             <repository>
               <id>central</id>
