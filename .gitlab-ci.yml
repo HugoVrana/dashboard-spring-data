@@ -54,7 +54,7 @@ before_script:
       </activeProfiles>
       <servers>
         <server>
-          <id>common-lib</id>
+          <id>gitlab-maven</id>
           <username>gitlab-ci-token</username>
           <password>${CI_JOB_TOKEN}</password>
         </server>
