@@ -2,9 +2,10 @@ package com.dashboard.controller;
 
 import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
-import com.dashboard.mapper.CustomerMapper;
+import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.service.interfaces.ICustomerService;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,15 +16,11 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/customers")
+@RequiredArgsConstructor
 public class CustomersController {
 
     private final ICustomerService customersService;
-    private final CustomerMapper customerMapper;
-
-    public CustomersController(ICustomerService customersService, CustomerMapper customerMapper) {
-        this.customersService = customersService;
-        this.customerMapper = customerMapper;
-    }
+    private final ICustomerMapper customerMapper;
 
     @GetMapping("/")
     public ResponseEntity<List<CustomerRead>> getAllCustomers() {

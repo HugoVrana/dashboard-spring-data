@@ -3,6 +3,7 @@ package com.dashboard.service;
 import com.dashboard.model.entities.User;
 import com.dashboard.repository.IUserRepository;
 import com.dashboard.service.interfaces.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Page;
@@ -17,14 +18,10 @@ import java.util.Optional;
 
 @Service
 @Scope("singleton")
+@RequiredArgsConstructor
 public class UserService implements IUserService {
     private final IUserRepository userRepository;
     private final MongoTemplate mongoTemplate;
-
-    public UserService(IUserRepository userRepository, MongoTemplate mongoTemplate) {
-        this.userRepository = userRepository;
-        this.mongoTemplate = mongoTemplate;
-    }
 
     public List<User> getAllUsers() {
         return userRepository.queryByAudit_DeletedAtIsNull();
