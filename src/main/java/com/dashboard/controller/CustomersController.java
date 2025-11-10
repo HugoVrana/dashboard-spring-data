@@ -1,9 +1,9 @@
 package com.dashboard.controller;
 
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.CustomerMapper;
 import com.dashboard.model.entities.Customer;
-import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.ICustomerService;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;

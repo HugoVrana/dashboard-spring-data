@@ -1,5 +1,7 @@
 package com.dashboard.controller;
 
+import com.dashboard.common.model.exception.NotFoundException;
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
@@ -11,8 +13,6 @@ import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.entities.Audit;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
-import com.dashboard.model.exception.NotFoundException;
-import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;

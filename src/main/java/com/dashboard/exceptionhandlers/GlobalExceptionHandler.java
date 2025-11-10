@@ -2,9 +2,9 @@ package com.dashboard.exceptionhandlers;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.logging.LogBuilderHelper;
+import com.dashboard.common.model.exception.InvalidRequestException;
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.common.model.log.ApiCallLog;
-import com.dashboard.model.exception.InvalidRequestException;
-import com.dashboard.model.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
