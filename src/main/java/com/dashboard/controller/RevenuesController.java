@@ -4,6 +4,7 @@ import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
 import com.dashboard.model.entities.Revenue;
 import com.dashboard.service.interfaces.IRevenueService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +16,11 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping("/revenues")
+@RequiredArgsConstructor
 public class RevenuesController {
+
     private final IRevenueService revenueService;
     private final IRevenueMapper revenueMapper;
-
-    public RevenuesController(IRevenueService revenueService, IRevenueMapper revenueMapper) {
-        this.revenueService = revenueService;
-        this.revenueMapper = revenueMapper;
-    }
 
     @GetMapping("/")
     public ResponseEntity<List<RevenueRead>> getAllRevenues() {

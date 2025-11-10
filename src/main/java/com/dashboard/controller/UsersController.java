@@ -21,15 +21,11 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/users")
+@lombok.RequiredArgsConstructor
 public class UsersController {
 
     private final IUserService userService;
     private final IUserMapper userMapper;
-
-    public UsersController(IUserService userService, IUserMapper userMapper) {
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
 
     @GetMapping("/")
     public ResponseEntity<List<UserRead>> getAllUsers() {

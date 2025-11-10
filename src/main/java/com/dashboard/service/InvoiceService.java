@@ -3,6 +3,7 @@ package com.dashboard.service;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.service.interfaces.IInvoiceService;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Page;
@@ -23,14 +24,10 @@ import java.util.regex.Pattern;
 
 @Service
 @Scope("singleton")
+@RequiredArgsConstructor
 public class InvoiceService implements IInvoiceService {
     private final IInvoiceRepository invoiceRepository;
     private final MongoTemplate mongoTemplate;
-
-    public InvoiceService(IInvoiceRepository invoiceRepository, MongoTemplate mongoTemplate) {
-        this.invoiceRepository = invoiceRepository;
-        this.mongoTemplate = mongoTemplate;
-    }
 
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findByAudit_DeletedAtIsNull();

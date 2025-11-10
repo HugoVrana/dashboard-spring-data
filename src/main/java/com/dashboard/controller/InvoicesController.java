@@ -16,6 +16,7 @@ import com.dashboard.model.entities.Invoice;
 import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,22 +33,13 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/invoices")
+@RequiredArgsConstructor
 public class InvoicesController {
 
     private final IInvoiceService invoiceService;
     private final ICustomerService customersService;
     private final IInvoiceMapper invoiceMapper;
     private final ICustomerMapper customerMapper;
-
-    public InvoicesController(IInvoiceService invoiceService,
-                              ICustomerService customersService,
-                              IInvoiceMapper invoiceMapper,
-                              ICustomerMapper customerMapper) {
-        this.invoiceService = invoiceService;
-        this.customersService = customersService;
-        this.invoiceMapper = invoiceMapper;
-        this.customerMapper = customerMapper;
-    }
 
     @GetMapping("/")
     public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
