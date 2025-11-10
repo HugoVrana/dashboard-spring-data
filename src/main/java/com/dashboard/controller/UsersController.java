@@ -1,11 +1,11 @@
 package com.dashboard.controller;
 
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.page.PageRead;
 import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.dataTransferObject.user.UserRead;
 import com.dashboard.mapper.interfaces.IUserMapper;
 import com.dashboard.model.entities.User;
-import com.dashboard.model.exception.ResourceNotFoundException;
 import com.dashboard.service.interfaces.IUserService;
 import jakarta.validation.constraints.Email;
 import org.bson.types.ObjectId;
