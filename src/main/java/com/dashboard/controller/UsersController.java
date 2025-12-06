@@ -8,6 +8,7 @@ import com.dashboard.mapper.interfaces.IUserMapper;
 import com.dashboard.model.entities.User;
 import com.dashboard.service.interfaces.IUserService;
 import jakarta.validation.constraints.Email;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @RestController
 @CrossOrigin
 @RequestMapping("/users")
-@lombok.RequiredArgsConstructor
+@RequiredArgsConstructor
 public class UsersController {
 
     private final IUserService userService;
