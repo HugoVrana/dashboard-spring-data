@@ -1,5 +1,6 @@
 package com.dashboard.model.entities;
 
+import com.dashboard.common.model.Audit;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
