@@ -131,13 +131,19 @@ public class InvoicesController {
 
     @PostMapping(value = "/search", consumes = "application/json")
     public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@RequestBody PageRequest pageRequest) {
-        Pageable pageable;
-        if (pageRequest.getPage() == null || pageRequest.getPage() < 1) {
-            pageable = Pageable.unpaged();
-        } else {
-            pageable = Pageable.ofSize(pageRequest.getSize()).withPage(pageRequest.getPage() - 1);
+
+        if (pageRequest.getPage() != null && pageRequest.getPage() <= 0) {
+            throw new IllegalArgumentException("Page number must be greater than 0");
         }
 
+        Pageable pageable;
+        if (pageRequest.getPage() == null) {
+            pageable = Pageable.unpaged();
+        } else {
+            pageable = Pageable
+                    .ofSize(pageRequest.getSize())
+                    .withPage(pageRequest.getPage() - 1);
+        }
         Page<Invoice> invoices = invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
 
         if (invoices.isEmpty()) {
