@@ -231,7 +231,7 @@ public class InvoicesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInvoice(@PathVariable("id") String id) {
+    public ResponseEntity<Integer> deleteInvoice(@PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
         }
@@ -248,13 +248,9 @@ public class InvoicesController {
         invoiceService.updateInvoice(invoice);
 
         optionalInvoice = invoiceService.getInvoiceById(invoiceId);
-        if (optionalInvoice.isEmpty()) {
+        if (optionalInvoice.isPresent()) {
             throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
         }
-        Invoice invoiceDeleted = optionalInvoice.get();
-        if (invoiceDeleted.getAudit().getDeletedAt() == null) {
-            throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
-        }
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok(1);
     }
 }
