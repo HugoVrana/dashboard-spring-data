@@ -8,6 +8,7 @@ import com.dashboard.service.interfaces.ICustomerService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class CustomersController {
     private final ICustomerMapper customerMapper;
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<List<CustomerRead>> getAllCustomers() {
         List<Customer> customers = customersService.getAllCustomers();
         List<CustomerRead> customerDtos = new ArrayList<>();
@@ -34,6 +36,7 @@ public class CustomersController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<CustomerRead> getCustomerById(@PathVariable("id") String id) {
         if(!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
@@ -51,6 +54,7 @@ public class CustomersController {
     }
 
     @GetMapping("/count")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<Long> getCustomerCount() {
         long count = customersService.getCount();
         return ResponseEntity.ok(count);

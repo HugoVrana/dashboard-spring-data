@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.Instant;
@@ -42,6 +43,7 @@ public class InvoicesController {
     private final ICustomerMapper customerMapper;
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
         List<Invoice> invoices = invoiceService.getAllInvoices();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
@@ -54,6 +56,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<InvoiceRead> getInvoiceById(@PathVariable("id") String id) {
 
         if (!ObjectId.isValid(id)) {
@@ -73,6 +76,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/latest")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<List<InvoiceRead>> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
         if (indexFrom != null && indexTo != null && indexFrom > indexTo) {
             throw new IllegalArgumentException("indexFrom must be less or equal to indexTo");
@@ -91,6 +95,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/count")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<Integer> getInvoiceCount(@RequestParam(required = false) String status) {
         List<Invoice> invoices;
         if (status == null) {
@@ -103,6 +108,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/amount")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<Double> getInvoiceAmount(@RequestParam(required = false) String status) {
         double amount;
         if (status == null) {
@@ -120,6 +126,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/pages")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<Integer> getPages(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) Integer size) {
         if (size == null || size < 1) {
             size = 15;
@@ -130,6 +137,7 @@ public class InvoicesController {
     }
 
     @PostMapping(value = "/search", consumes = "application/json")
+    @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@RequestBody PageRequest pageRequest) {
 
         if (pageRequest.getPage() != null && pageRequest.getPage() <= 0) {
@@ -168,6 +176,7 @@ public class InvoicesController {
     }
 
     @PostMapping()
+    @PreAuthorize("hasAuthority('dashboard-invoices-create')")
     public ResponseEntity<InvoiceRead> createInvoice(@Valid @RequestBody InvoiceCreate invoiceCreate) {
         // At this point, customerId is present and matches ObjectId pattern.
         ObjectId customerId = new ObjectId(invoiceCreate.getCustomer_id());
@@ -194,6 +203,7 @@ public class InvoicesController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-invoices-update')")
     public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceUpdate invoiceUpdate) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
@@ -231,6 +241,7 @@ public class InvoicesController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-invoices-delete')")
     public ResponseEntity<Integer> deleteInvoice(@PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
