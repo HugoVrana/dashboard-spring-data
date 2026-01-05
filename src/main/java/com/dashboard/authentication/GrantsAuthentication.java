@@ -1,5 +1,6 @@
 package com.dashboard.authentication;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,15 +8,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class GrantsAuthentication implements Authentication {
     private final String username;
     private final List<String> grants;
     private boolean authenticated = true;
-
-    public GrantsAuthentication(String username, List<String> grants) {
-        this.username = username;
-        this.grants = grants;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
