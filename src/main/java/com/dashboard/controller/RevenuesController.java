@@ -6,6 +6,7 @@ import com.dashboard.model.entities.Revenue;
 import com.dashboard.service.interfaces.IRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class RevenuesController {
     private final IRevenueMapper revenueMapper;
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('dashboard-revenue-read')")
     public ResponseEntity<List<RevenueRead>> getAllRevenues() {
         List<Revenue> revenues = revenueService.getAllRevenues();
         List<RevenueRead> revenueReads = new ArrayList<>();

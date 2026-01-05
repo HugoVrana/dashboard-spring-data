@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class UsersController {
     private final IUserMapper userMapper;
 
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('dashboard-users-read')")
     public ResponseEntity<List<UserRead>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserRead> userReads = new ArrayList<>();
@@ -40,6 +42,7 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-users-read')")
     public ResponseEntity<UserRead> getUserById(@PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("Invalid id");
@@ -57,6 +60,7 @@ public class UsersController {
     }
 
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasAuthority('dashboard-users-read')")
     public ResponseEntity<UserRead> getUserByEmail(@PathVariable("email") @Email String email) {
         Optional<User> optionalUser = userService.getUserByEmail(email);
         if (optionalUser.isEmpty()) {
@@ -68,6 +72,7 @@ public class UsersController {
     }
 
     @PostMapping(value = "/search", consumes = "application/json")
+    @PreAuthorize("hasAuthority('dashboard-users-create')")
     public ResponseEntity<PageRead<UserRead>> searchUsers(@RequestBody PageRequest pageRequest) {
         Pageable pageable;
         if (pageRequest.getPage() == null || pageRequest.getPage() < 1) {
