@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 @Data
-@Document(collection = "invoice_search")
+@Document(collection = "invoices_search")
 @CompoundIndexes({
     @CompoundIndex(name = "customer_idx", def = "{'customerId': 1}"),
     @CompoundIndex(name = "deletedAt_idx", def = "{'deletedAt': 1}")
