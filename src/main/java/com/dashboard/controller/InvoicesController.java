@@ -3,7 +3,6 @@ package com.dashboard.controller;
 import com.dashboard.common.model.Audit;
 import com.dashboard.common.model.exception.NotFoundException;
 import com.dashboard.common.model.exception.ResourceNotFoundException;
-import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
@@ -11,9 +10,12 @@ import com.dashboard.dataTransferObject.page.PageRead;
 import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
+import com.dashboard.mapper.interfaces.IInvoiceSearchMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
+import com.dashboard.model.entities.InvoiceSearchDocument;
 import com.dashboard.service.interfaces.ICustomerService;
+import com.dashboard.service.interfaces.IInvoiceSearchService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +40,11 @@ import java.util.Optional;
 public class InvoicesController {
 
     private final IInvoiceService invoiceService;
+    private final IInvoiceSearchService invoiceSearchService;
     private final ICustomerService customersService;
     private final IInvoiceMapper invoiceMapper;
     private final ICustomerMapper customerMapper;
+    private final IInvoiceSearchMapper invoiceSearchMapper;
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
@@ -131,15 +135,14 @@ public class InvoicesController {
         if (size == null || size < 1) {
             size = 15;
         }
-        Page<Invoice> invoices = invoiceService.searchInvoices(searchTerm, Pageable.ofSize(size));
+        Page<InvoiceSearchDocument> invoices = invoiceSearchService.search(searchTerm, Pageable.ofSize(size));
         Integer pages = invoices.getTotalPages();
         return ResponseEntity.ok(pages);
     }
 
     @PostMapping(value = "/search", consumes = "application/json")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@RequestBody PageRequest pageRequest) {
-
+    public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@Valid @RequestBody PageRequest pageRequest) {
         if (pageRequest.getPage() != null && pageRequest.getPage() <= 0) {
             throw new IllegalArgumentException("Page number must be greater than 0");
         }
@@ -152,26 +155,22 @@ public class InvoicesController {
                     .ofSize(pageRequest.getSize())
                     .withPage(pageRequest.getPage() - 1);
         }
-        Page<Invoice> invoices = invoiceService.searchInvoices(pageRequest.getSearch(), pageable); // always returns all invoices
+        Page<InvoiceSearchDocument> searchResults = invoiceSearchService.search(pageRequest.getSearch(), pageable);
 
-        if (invoices.isEmpty()) {
+        if (searchResults.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
         PageRead<InvoiceRead> pageRead = new PageRead<>();
-        List<Invoice> content = invoices.stream().toList();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for (Invoice invoice : content) {
-            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            CustomerRead customerRead = customerMapper.toRead(invoice.getCustomer());
-            invoiceRead.setCustomer(customerRead);
-            invoiceReads.add(invoiceRead);
+        for (InvoiceSearchDocument doc : searchResults.getContent()) {
+            invoiceReads.add(invoiceSearchMapper.toRead(doc));
         }
 
         pageRead.setData(invoiceReads);
-        pageRead.setTotalPages(invoices.getTotalPages());
-        pageRead.setItemsPerPage(invoices.getSize());
-        pageRead.setCurrentPage(invoices.getNumber() + 1);
+        pageRead.setTotalPages(searchResults.getTotalPages());
+        pageRead.setItemsPerPage(searchResults.getSize());
+        pageRead.setCurrentPage(searchResults.getNumber() + 1);
         return ResponseEntity.ok(pageRead);
     }
 
@@ -257,6 +256,7 @@ public class InvoicesController {
         audit.setDeletedAt(Instant.now());
         invoice.setAudit(audit);
         invoiceService.updateInvoice(invoice);
+        invoiceSearchService.markInvoiceDeleted(invoiceId);
 
         optionalInvoice = invoiceService.getInvoiceById(invoiceId);
         if (optionalInvoice.isPresent()) {
