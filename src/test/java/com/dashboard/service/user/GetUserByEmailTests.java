@@ -16,7 +16,7 @@ public class GetUserByEmailTests extends BaseUserServiceTest {
     @Test
     @DisplayName("should return user when found by email")
     void getUserByEmail_ReturnsUserWhenFound() {
-        String email = "john.doe@example.com";
+        String email = "user@nextmail.com";
         when(userRepository.queryUserByEmailAndAudit_DeletedAtIsNull(email))
                 .thenReturn(Optional.of(testUser));
 
