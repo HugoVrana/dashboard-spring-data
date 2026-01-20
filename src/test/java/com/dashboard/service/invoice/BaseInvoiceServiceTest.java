@@ -14,11 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 
 @Tag("service-invoice")
 @ExtendWith(MockitoExtension.class)
+@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 public abstract class BaseInvoiceServiceTest {
 
     @Mock
