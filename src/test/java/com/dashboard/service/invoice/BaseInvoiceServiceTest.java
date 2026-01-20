@@ -8,6 +8,7 @@ import com.dashboard.service.InvoiceSearchService;
 import com.dashboard.service.InvoiceService;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDate;
 
+@Tag("service-invoice")
 @ExtendWith(MockitoExtension.class)
 public abstract class BaseInvoiceServiceTest {
 
