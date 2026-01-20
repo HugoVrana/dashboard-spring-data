@@ -4,6 +4,7 @@ import com.dashboard.common.model.Audit;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
+import com.dashboard.service.InvoiceService;
 import com.dashboard.service.interfaces.IInvoiceSearchService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import org.bson.types.ObjectId;
@@ -13,24 +14,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class BaseInvoiceServiceTest {
 
-    @MockitoBean
+    @Mock
     protected IInvoiceRepository invoiceRepository;
 
-    @MockitoBean
+    @Mock
     protected IInvoiceSearchService invoiceSearchService;
 
     @Mock
     protected MongoTemplate mongoTemplate;
 
     @InjectMocks
-    protected IInvoiceService invoiceService;
+    protected InvoiceService invoiceService;
 
     protected Invoice testInvoice;
     protected ObjectId testInvoiceId;
