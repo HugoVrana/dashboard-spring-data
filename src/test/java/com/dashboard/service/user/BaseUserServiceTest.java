@@ -19,7 +19,7 @@ public abstract class BaseUserServiceTest {
     protected IUserRepository userRepository;
 
     @Mock
-    private MongoTemplate mongoTemplate;
+    protected MongoTemplate mongoTemplate;
 
     protected User testUser;
     protected ObjectId testUserId;

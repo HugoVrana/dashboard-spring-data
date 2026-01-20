@@ -19,9 +19,6 @@ import static org.mockito.Mockito.when;
 
 public class SearchUsersTests extends BaseUserServiceTest {
 
-    @Mock
-    protected MongoTemplate mongoTemplate;
-
     @Test
     @DisplayName("should return all users when search term is null")
     void searchUsers_ReturnsAllUsersWhenTermIsNull() {
