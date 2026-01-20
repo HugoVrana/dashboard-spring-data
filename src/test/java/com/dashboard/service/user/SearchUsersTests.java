@@ -1,7 +1,6 @@
 package com.dashboard.service.user;
 
 import com.dashboard.model.entities.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -10,10 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-
 import java.util.Collections;
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -57,7 +54,7 @@ public class SearchUsersTests extends BaseUserServiceTest {
     @Test
     @DisplayName("should use pagination when page is specified")
     void searchUsers_UsesPaginationWhenPageSpecified() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(1, 10);
         List<User> users = List.of(testUser);
         when(userRepository.count()).thenReturn(1L);
         when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(users);
@@ -71,7 +68,7 @@ public class SearchUsersTests extends BaseUserServiceTest {
     @Test
     @DisplayName("should search by ObjectId when term is valid ObjectId")
     void searchUsers_SearchesByObjectIdWhenTermIsValidObjectId() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(1, 10);
         String objectIdTerm = testUserId.toHexString();
         List<User> users = List.of(testUser);
         when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(users);
@@ -86,8 +83,8 @@ public class SearchUsersTests extends BaseUserServiceTest {
     @Test
     @DisplayName("should search by name or email when term is not ObjectId")
     void searchUsers_SearchesByNameOrEmailWhenTermIsNotObjectId() {
-        Pageable pageable = PageRequest.of(0, 10);
-        String searchTerm = "john";
+        Pageable pageable = PageRequest.of(1, 10);
+        String searchTerm = "user";
         List<User> users = List.of(testUser);
         when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(users);
         when(mongoTemplate.count(any(Query.class), eq(User.class))).thenReturn(1L);
@@ -102,7 +99,7 @@ public class SearchUsersTests extends BaseUserServiceTest {
     @Test
     @DisplayName("should return empty page when no results found")
     void searchUsers_ReturnsEmptyPageWhenNoResults() {
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(1, 10);
         String searchTerm = "nonexistent";
         when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(Collections.emptyList());
         when(mongoTemplate.count(any(Query.class), eq(User.class))).thenReturn(0L);

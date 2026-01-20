@@ -4,9 +4,8 @@ import com.dashboard.common.model.Audit;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
+import com.dashboard.service.InvoiceSearchService;
 import com.dashboard.service.InvoiceService;
-import com.dashboard.service.interfaces.IInvoiceSearchService;
-import com.dashboard.service.interfaces.IInvoiceService;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +23,7 @@ public abstract class BaseInvoiceServiceTest {
     protected IInvoiceRepository invoiceRepository;
 
     @Mock
-    protected IInvoiceSearchService invoiceSearchService;
+    protected InvoiceSearchService invoiceSearchService;
 
     @Mock
     protected MongoTemplate mongoTemplate;
