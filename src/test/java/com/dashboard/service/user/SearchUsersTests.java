@@ -81,7 +81,7 @@ public class SearchUsersTests extends BaseUserServiceTest {
     @DisplayName("should search by name or email when term is not ObjectId")
     void searchUsers_SearchesByNameOrEmailWhenTermIsNotObjectId() {
         Pageable pageable = PageRequest.of(1, 10);
-        String searchTerm = "user";
+        String searchTerm = "user@nextmail.com";
         List<User> users = List.of(testUser);
         when(mongoTemplate.find(any(Query.class), eq(User.class))).thenReturn(users);
         when(mongoTemplate.count(any(Query.class), eq(User.class))).thenReturn(1L);
