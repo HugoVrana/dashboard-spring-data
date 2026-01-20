@@ -1,11 +1,12 @@
 package com.dashboard.controller.customers;
 
+import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.Audit;
 import com.dashboard.controller.CustomersController;
+import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.service.interfaces.ICustomerService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.datafaker.Faker;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,14 +25,14 @@ public abstract class BaseCustomersControllerTest {
     @Autowired
     protected MockMvc mockMvc;
 
-    @Autowired
-    protected ObjectMapper objectMapper;
-
     @MockitoBean
     protected ICustomerService customersService;
 
     @MockitoBean
     protected ICustomerMapper customerMapper;
+
+    @MockitoBean
+    protected GrafanaHttpClient grafanaHttpClient;
 
     protected final Faker faker = new Faker();
 
@@ -60,5 +61,14 @@ public abstract class BaseCustomersControllerTest {
         testCustomer.setAudit(audit);
 
         return testCustomer;
+    }
+
+    protected CustomerRead createTestCustomerRead() {
+        CustomerRead customerRead = new CustomerRead();
+        customerRead.setId(testCustomerId.toHexString());
+        customerRead.setName(testCustomerName);
+        customerRead.setEmail(testCustomerEmail);
+        customerRead.setImage_url(testImageUrl);
+        return customerRead;
     }
 }
