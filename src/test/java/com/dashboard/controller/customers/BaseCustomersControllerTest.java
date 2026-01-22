@@ -7,23 +7,30 @@ import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.service.interfaces.ICustomerService;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import net.datafaker.Faker;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 
+@Epic("Customers")
+@Feature("Customer API")
 @Tag("controller-customer")
 @WebMvcTest(CustomersController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+@Execution(ExecutionMode.SAME_THREAD)
+@ResourceLock("spring-context")
 public abstract class BaseCustomersControllerTest {
 
     @Autowired

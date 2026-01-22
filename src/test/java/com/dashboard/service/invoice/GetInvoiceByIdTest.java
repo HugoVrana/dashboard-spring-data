@@ -1,6 +1,7 @@
 package com.dashboard.service.invoice;
 
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Story("Get Invoice By ID")
+@DisplayName("getInvoiceById")
 public class GetInvoiceByIdTest extends BaseInvoiceServiceTest {
     @Test
     @DisplayName("should return invoice when found by id")

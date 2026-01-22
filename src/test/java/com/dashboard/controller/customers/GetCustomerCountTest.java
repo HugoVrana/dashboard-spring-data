@@ -1,5 +1,6 @@
 package com.dashboard.controller.customers;
 
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -9,6 +10,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Get Customer Count")
+@DisplayName("GET /customers/count")
 public class GetCustomerCountTest extends BaseCustomersControllerTest {
     @Test
     @DisplayName("should return customer count")

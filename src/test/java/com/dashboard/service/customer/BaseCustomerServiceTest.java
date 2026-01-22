@@ -4,6 +4,8 @@ import com.dashboard.common.model.Audit;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.repository.ICustomersRepository;
 import com.dashboard.service.CustomerService;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -11,11 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.annotation.DirtiesContext;
 
+@Epic("Customers")
+@Feature("Customer Service")
 @Tag("service-customer")
 @ExtendWith(MockitoExtension.class)
-@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 public abstract class BaseCustomerServiceTest {
 
     @Mock

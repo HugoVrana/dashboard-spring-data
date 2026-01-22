@@ -1,6 +1,7 @@
 package com.dashboard.service.customer;
 
 import com.dashboard.model.entities.Customer;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Story("Get Customer By ID")
 @DisplayName("getCustomer")
 public class GetCustomerTest extends BaseCustomerServiceTest {
 

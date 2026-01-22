@@ -1,6 +1,7 @@
 package com.dashboard.service.invoice;
 
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Story("Insert Invoice")
 @DisplayName("insertInvoice")
 public class InsertInvoiceTest extends BaseInvoiceServiceTest {
     @Test

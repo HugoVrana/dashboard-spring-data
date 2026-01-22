@@ -1,5 +1,6 @@
 package com.dashboard.service.customer;
 
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class GetCountTest  extends BaseCustomerServiceTest {
+@Story("Get Customer Count")
+@DisplayName("getCount")
+public class GetCountTest extends BaseCustomerServiceTest {
+
     @Test
     @DisplayName("should return count of non-deleted customers")
     void getCount_ReturnsCountOfNonDeletedCustomers() {

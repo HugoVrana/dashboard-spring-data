@@ -5,6 +5,7 @@ import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Update Invoice")
 @DisplayName("PUT /invoices/{id}")
 public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
 

@@ -6,6 +6,8 @@ import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.service.InvoiceSearchService;
 import com.dashboard.service.InvoiceService;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -14,13 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 
+@Epic("Invoices")
+@Feature("Invoice Service")
 @Tag("service-invoice")
 @ExtendWith(MockitoExtension.class)
-@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 public abstract class BaseInvoiceServiceTest {
 
     @Mock

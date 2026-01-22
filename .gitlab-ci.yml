@@ -78,10 +78,15 @@ unit-test-job:
   stage: test
   script:
     - mvn $MAVEN_CLI_OPTS test
+    - mvn $MAVEN_CLI_OPTS allure:report
   artifacts:
+    when: always
+    paths:
+      - target/site/allure-maven-plugin/
     reports:
       junit:
         - target/surefire-reports/*.xml
+    expire_in: 7 days
 
 lint-test-job:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).

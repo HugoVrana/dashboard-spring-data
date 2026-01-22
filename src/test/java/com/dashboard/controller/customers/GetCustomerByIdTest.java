@@ -2,6 +2,7 @@ package com.dashboard.controller.customers;
 
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.model.entities.Customer;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -13,6 +14,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Get Customer By ID")
+@DisplayName("GET /customers/{id}")
 public class GetCustomerByIdTest extends BaseCustomersControllerTest {
     @Test
     @DisplayName("should return customer when found")

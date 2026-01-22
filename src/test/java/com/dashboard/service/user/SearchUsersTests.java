@@ -1,13 +1,12 @@
 package com.dashboard.service.user;
 
 import com.dashboard.model.entities.User;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +16,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Story("Search Users")
+@DisplayName("searchUsers")
 public class SearchUsersTests extends BaseUserServiceTest {
 
     @Test

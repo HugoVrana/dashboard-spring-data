@@ -2,6 +2,7 @@ package com.dashboard.controller.customers;
 
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.model.entities.Customer;
+import io.qameta.allure.Story;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Story("Get All Customers")
+@DisplayName("GET /customers")
 public class GetAllCustomersTest extends BaseCustomersControllerTest {
     @Test
     @DisplayName("should return all customers")

@@ -1,6 +1,7 @@
 package com.dashboard.controller.invoices;
 
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Get Invoice Count")
 @DisplayName("GET /invoices/count")
 class GetInvoicesCountTest extends BaseInvoicesControllerTest {
     @Test

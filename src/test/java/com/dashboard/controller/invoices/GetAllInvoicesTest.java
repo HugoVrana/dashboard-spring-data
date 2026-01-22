@@ -3,6 +3,7 @@ package com.dashboard.controller.invoices;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Story("Get All Invoices")
 @DisplayName("GET /invoices")
 class GetAllInvoicesTest extends BaseInvoicesControllerTest {
 

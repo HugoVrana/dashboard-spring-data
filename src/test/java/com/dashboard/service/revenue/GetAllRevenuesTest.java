@@ -1,8 +1,8 @@
 package com.dashboard.service.revenue;
 
 import com.dashboard.model.entities.Revenue;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Nested
+@Story("Get All Revenues")
 @DisplayName("getAllRevenues")
 public class GetAllRevenuesTest extends BaseRevenueServiceTest {
     @Test

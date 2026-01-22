@@ -1,6 +1,7 @@
 package com.dashboard.service.invoice;
 
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@DisplayName( "searchInvoice")
+@Story("Search Invoices")
+@DisplayName("searchInvoice")
 public class SearchInvoicesTests extends BaseInvoiceServiceTest {
     @Test
     @DisplayName("should return all invoices when search term is null")
