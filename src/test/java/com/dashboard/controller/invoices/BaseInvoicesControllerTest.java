@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
@@ -31,7 +30,6 @@ import java.time.LocalDate;
 @Tag("controller-invoice")
 @WebMvcTest(InvoicesController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 public abstract class BaseInvoicesControllerTest {
 
     @Autowired
