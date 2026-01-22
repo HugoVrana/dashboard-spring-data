@@ -4,6 +4,7 @@ import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.page.PageRequest;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.InvoiceSearchDocument;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Search Invoices")
 @DisplayName("POST /invoices/search")
 public class SearchInvoicesTest extends BaseInvoicesControllerTest {
 

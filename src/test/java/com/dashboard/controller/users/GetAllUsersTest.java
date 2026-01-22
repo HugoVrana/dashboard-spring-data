@@ -1,6 +1,7 @@
 package com.dashboard.controller.users;
 
 import com.dashboard.model.entities.User;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Story("Get All Users")
 @DisplayName("GET /users/")
 public class GetAllUsersTest extends BaseUsersControllerTest {
 

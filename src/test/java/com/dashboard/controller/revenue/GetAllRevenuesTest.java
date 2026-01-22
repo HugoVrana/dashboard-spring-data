@@ -3,6 +3,7 @@ package com.dashboard.controller.revenue;
 import com.dashboard.common.model.Audit;
 import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.model.entities.Revenue;
+import io.qameta.allure.Story;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+@Story("Get All Revenues")
+@DisplayName("GET /revenues")
 public class GetAllRevenuesTest extends BaseRevenueControllerTest {
     @Test
     @DisplayName("should return all revenues")

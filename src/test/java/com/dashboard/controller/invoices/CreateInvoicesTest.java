@@ -5,6 +5,8 @@ import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
+import io.qameta.allure.Story;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Story("Create Invoice")
 @DisplayName("POST /invoices")
 public class CreateInvoicesTest extends BaseInvoicesControllerTest {
 
@@ -30,11 +33,11 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
 
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 1000.0, testCustomerId.toHexString());
 
-        when(customersService.getCustomer(testCustomerId)).thenReturn(Optional.of(customer));
+        when(customersService.getCustomer(any(ObjectId.class))).thenReturn(Optional.of(customer));
         when(invoiceMapper.toModel(any(InvoiceCreate.class), any(Customer.class))).thenReturn(testInvoice);
         when(invoiceService.insertInvoice(any(Invoice.class))).thenReturn(testInvoice);
-        when(invoiceMapper.toRead(testInvoice)).thenReturn(testInvoiceRead);
-        when(customerMapper.toRead(customer)).thenReturn(customerRead);
+        when(invoiceMapper.toRead(any(Invoice.class))).thenReturn(testInvoiceRead);
+        when(customerMapper.toRead(any(Customer.class))).thenReturn(customerRead);
 
         mockMvc.perform(post("/invoices")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -49,7 +52,7 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
     void createInvoice_Returns500WhenCustomerNotFound() throws Exception {
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 1000.0, testCustomerId.toHexString());
 
-        when(customersService.getCustomer(testCustomerId)).thenReturn(Optional.empty());
+        when(customersService.getCustomer(any(ObjectId.class))).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/invoices")
                         .contentType(MediaType.APPLICATION_JSON)
