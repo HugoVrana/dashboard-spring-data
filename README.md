@@ -1,6 +1,7 @@
 # Dashboard Application API
 
-A Spring Boot REST API backend for a dashboard application that simulates a company called Acme, tracking their invoices to customers. This is a learning project for the Spring + Next.js stack.
+A Spring Boot REST API backend for a dashboard application that simulates a company called Acme, tracking their invoices
+to customers. This is a learning project for the Spring + Next.js stack.
 
 ## Tech Stack
 
@@ -37,6 +38,7 @@ A Spring Boot REST API backend for a dashboard application that simulates a comp
 ### API Documentation
 
 When running locally, OpenAPI documentation is available at:
+
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ## Project Structure

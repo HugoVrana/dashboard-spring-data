@@ -17,18 +17,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import com.dashboard.config.TestConfig;
 
 @Epic("Revenue")
 @Feature("Revenue API")
 @Tag("controller-revenue")
 @WebMvcTest(RevenuesController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(TestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("spring-context")
+@WithMockUser(username = "testUser")
 public abstract class BaseRevenueControllerTest {
 
     @Autowired

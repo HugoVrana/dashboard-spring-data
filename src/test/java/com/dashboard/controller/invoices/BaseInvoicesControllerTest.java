@@ -11,6 +11,7 @@ import com.dashboard.mapper.interfaces.IInvoiceSearchMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.InvoiceSearchDocument;
+import com.dashboard.service.interfaces.IActivityFeedService;
 import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceSearchService;
 import com.dashboard.service.interfaces.IInvoiceService;
@@ -21,14 +22,18 @@ import net.datafaker.Faker;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import com.dashboard.config.TestConfig;
+
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -37,39 +42,33 @@ import java.time.LocalDate;
 @Tag("controller-invoice")
 @WebMvcTest(InvoicesController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(TestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("spring-context")
+@WithMockUser(username = "testUser")
 public abstract class BaseInvoicesControllerTest {
 
+    protected final Faker faker = new Faker();
     @Autowired
     protected MockMvc mockMvc;
-
     @Autowired
     protected ObjectMapper objectMapper;
-
     @MockitoBean
     protected IInvoiceService invoiceService;
-
     @MockitoBean
     protected IInvoiceSearchService invoiceSearchService;
-
     @MockitoBean
     protected ICustomerService customersService;
-
     @MockitoBean
     protected IInvoiceMapper invoiceMapper;
-
     @MockitoBean
     protected ICustomerMapper customerMapper;
-
     @MockitoBean
     protected IInvoiceSearchMapper invoiceSearchMapper;
-
     @MockitoBean
     protected GrafanaHttpClient grafanaHttpClient;
-
-    protected final Faker faker = new Faker();
-
+    @MockitoBean
+    protected IActivityFeedService activityFeedService;
     protected ObjectId testInvoiceId;
     protected ObjectId testCustomerId;
 
