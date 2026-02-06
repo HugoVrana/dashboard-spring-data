@@ -24,15 +24,4 @@ public class ActivityController {
             @RequestParam(defaultValue = "50") int limit) {
         return activityFeedService.getRecentEvents(limit);
     }
-
-    // Test endpoint to send a WebSocket message
-    @GetMapping("/test")
-    public String sendTestEvent() {
-        ActivityEvent event = ActivityEvent.builder()
-                .type("INVOICE_CREATED")
-                .timestamp(Instant.now())
-                .build();
-        activityFeedService.publishEvent(event);
-        return "Event sent!";
-    }
 }
