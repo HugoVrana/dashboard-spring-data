@@ -73,7 +73,7 @@ class GetRecentEventsTest extends BaseActivityControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(testEvent.getId()))
                 .andExpect(jsonPath("$[0].type").value(testEvent.getType()))
-                .andExpect(jsonPath("$[0].actor").value(testEvent.getActorId()))
+                .andExpect(jsonPath("$[0].actorId").value(testEvent.getActorId()))
                 .andExpect(jsonPath("$[0].metadata").exists());
     }
 }
