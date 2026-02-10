@@ -60,15 +60,6 @@ public class InvoicesController {
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
-
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .build();
-        activityFeedService.publishEvent(event);
-
         return ResponseEntity.ok(invoiceReads);
     }
 
@@ -108,16 +99,6 @@ public class InvoicesController {
             invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
             invoiceReads.add(invoiceRead);
         }
-
-        // Emit activity event
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .build();
-        activityFeedService.publishEvent(event);
-
         return ResponseEntity.ok(invoiceReads);
     }
 
@@ -130,8 +111,8 @@ public class InvoicesController {
         } else {
             invoices = invoiceService.getInvoicesByStatus(status);
         }
-        Integer cout = invoices.size();
-        return ResponseEntity.ok(cout);
+        Integer count = invoices.size();
+        return ResponseEntity.ok(count);
     }
 
     @GetMapping("/amount")
@@ -194,15 +175,6 @@ public class InvoicesController {
         pageRead.setTotalPages(searchResults.getTotalPages());
         pageRead.setItemsPerPage(searchResults.getSize());
         pageRead.setCurrentPage(searchResults.getNumber() + 1);
-
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .build();
-        activityFeedService.publishEvent(event);
-
         return ResponseEntity.ok(pageRead);
     }
 
@@ -228,12 +200,15 @@ public class InvoicesController {
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String actorId = (username == null) ? "unknown" : username;
+
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_CREATED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .actorId(actorId)
                 .metadata(Map.of(
                         "invoiceId", invoice.get_id().toHexString(),
                         "amount", invoice.getAmount(),
@@ -281,12 +256,15 @@ public class InvoicesController {
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String actorId = (username == null) ? "unknown" : username;
+
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_UPDATED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .actorId(actorId)
                 .metadata(Map.of(
                         "invoiceId", invoice.get_id().toHexString(),
                         "amount", invoice.getAmount(),
@@ -325,12 +303,15 @@ public class InvoicesController {
             throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
         }
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String actorId = (username == null) ? "unknown" : username;
+
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .actorId(actorId)
                 .metadata(Map.of(
                         "invoiceId", id,
                         "customerName", invoice.getCustomer().getName()
