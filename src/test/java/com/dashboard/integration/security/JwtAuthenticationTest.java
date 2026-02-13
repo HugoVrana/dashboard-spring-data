@@ -1,4 +1,4 @@
-package com.dashboard.security;
+package com.dashboard.integration.security;
 
 import com.dashboard.config.TestJwtTokenGenerator;
 import com.dashboard.integration.BaseIntegrationTest;
