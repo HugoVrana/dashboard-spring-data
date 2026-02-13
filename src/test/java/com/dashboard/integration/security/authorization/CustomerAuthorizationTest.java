@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Nested
 @Story("Customer Endpoints")
 @DisplayName("Customer Authorization")
 public class CustomerAuthorizationTest extends BaseAuthorizationSecurityTest {
