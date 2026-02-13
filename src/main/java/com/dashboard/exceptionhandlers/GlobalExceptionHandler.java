@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+
 import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
@@ -56,6 +58,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleNotFound(ResourceNotFoundException ignoredEx) {
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<String> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied");
     }
 
     // Handle all exceptions
