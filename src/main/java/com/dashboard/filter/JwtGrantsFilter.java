@@ -54,7 +54,8 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
         if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
             return null;
         }
-        return bearerToken.substring(7).trim();
+        String token = bearerToken.substring(7).trim();
+        return token.isEmpty() ? null : token;
     }
 
     private Claims validateAndParse(String token) {

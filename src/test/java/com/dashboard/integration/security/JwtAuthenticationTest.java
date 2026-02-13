@@ -30,58 +30,58 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
 
     @Test
     @Story("Missing Token")
-    @DisplayName("should return 401 when token is missing")
-    void missingToken_Returns401() throws Exception {
+    @DisplayName("should return 403 when token is missing")
+    void missingToken_Returns403() throws Exception {
         mockMvc.perform(get("/invoices/"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Story("Expired Token")
-    @DisplayName("should return 401 when token is expired")
-    void expiredToken_Returns401() throws Exception {
+    @DisplayName("should return 403 when token is expired")
+    void expiredToken_Returns403() throws Exception {
         String expiredToken = TestJwtTokenGenerator.generateExpiredToken();
 
         mockMvc.perform(get("/invoices/")
                         .header("Authorization", "Bearer " + expiredToken))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Story("Invalid Signature")
-    @DisplayName("should return 401 when token has invalid signature")
-    void invalidSignature_Returns401() throws Exception {
+    @DisplayName("should return 403 when token has invalid signature")
+    void invalidSignature_Returns403() throws Exception {
         String invalidToken = TestJwtTokenGenerator.generateTokenWithInvalidSignature();
 
         mockMvc.perform(get("/invoices/")
                         .header("Authorization", "Bearer " + invalidToken))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Story("Malformed Token")
-    @DisplayName("should return 401 when token is malformed")
-    void malformedToken_Returns401() throws Exception {
+    @DisplayName("should return 403 when token is malformed")
+    void malformedToken_Returns403() throws Exception {
         mockMvc.perform(get("/invoices/")
                         .header("Authorization", "Bearer not.a.valid.jwt.token"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Story("Invalid Authorization Header")
-    @DisplayName("should return 401 when authorization header has wrong format")
-    void wrongAuthFormat_Returns401() throws Exception {
+    @DisplayName("should return 403 when authorization header has wrong format")
+    void wrongAuthFormat_Returns403() throws Exception {
         mockMvc.perform(get("/invoices/")
                         .header("Authorization", "Basic sometoken"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Story("Empty Bearer Token")
-    @DisplayName("should return 401 when bearer token is empty")
-    void emptyBearerToken_Returns401() throws Exception {
+    @DisplayName("should return 403 when bearer token is empty")
+    void emptyBearerToken_Returns403() throws Exception {
         mockMvc.perform(get("/invoices/")
                         .header("Authorization", "Bearer "))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }
