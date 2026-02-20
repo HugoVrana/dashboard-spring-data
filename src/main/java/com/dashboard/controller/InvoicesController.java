@@ -1,5 +1,6 @@
 package com.dashboard.controller;
 
+import com.dashboard.authentication.GrantsAuthentication;
 import com.dashboard.common.model.ActivityEvent;
 import com.dashboard.common.model.Audit;
 import com.dashboard.common.model.exception.NotFoundException;
@@ -28,9 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -168,7 +167,8 @@ public class InvoicesController {
         PageRead<InvoiceRead> pageRead = new PageRead<>();
         List<InvoiceRead> invoiceReads = new ArrayList<>();
         for (InvoiceSearchDocument doc : searchResults.getContent()) {
-            invoiceReads.add(invoiceSearchMapper.toRead(doc));
+            InvoiceRead ir = invoiceSearchMapper.toRead(doc);
+            invoiceReads.add(ir);
         }
 
         pageRead.setData(invoiceReads);
@@ -200,20 +200,20 @@ public class InvoicesController {
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String actorId = (username == null) ? "unknown" : username;
+        GrantsAuthentication auth = GrantsAuthentication.current();
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_CREATED.name())
-                .actorId(actorId)
+                .actorId(auth.getUserId())
                 .metadata(Map.of(
                         "invoiceId", invoice.get_id().toHexString(),
                         "amount", invoice.getAmount(),
                         "status", invoice.getStatus(),
-                        "customerName", customer.getName()
+                        "customerName", customer.getName(),
+                        "userImageUrl", auth.getProfileImageUrl()
                 ))
                 .build();
         activityFeedService.publishEvent(event);
@@ -256,20 +256,20 @@ public class InvoicesController {
         InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String actorId = (username == null) ? "unknown" : username;
+        GrantsAuthentication auth = GrantsAuthentication.current();
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_UPDATED.name())
-                .actorId(actorId)
+                .actorId(auth.getUserId())
                 .metadata(Map.of(
                         "invoiceId", invoice.get_id().toHexString(),
                         "amount", invoice.getAmount(),
                         "status", invoice.getStatus(),
-                        "customerName", customer.getName()
+                        "customerName", customer.getName(),
+                        "customerImageUrl", auth.getProfileImageUrl()
                 ))
                 .build();
         activityFeedService.publishEvent(event);
@@ -303,18 +303,18 @@ public class InvoicesController {
             throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
         }
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String actorId = (username == null) ? "unknown" : username;
+        GrantsAuthentication auth = GrantsAuthentication.current();
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(actorId)
+                .actorId(auth.getUserId())
                 .metadata(Map.of(
                         "invoiceId", id,
-                        "customerName", invoice.getCustomer().getName()
+                        "customerName", invoice.getCustomer().getName(),
+                        "customerImageUrl", auth.getProfileImageUrl()
                 ))
                 .build();
         activityFeedService.publishEvent(event);

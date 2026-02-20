@@ -36,10 +36,12 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
             if (token != null) {
                 Claims claims = validateAndParse(token);
                 List<String> grants = claims.get("grants", List.class);
+                String userId = claims.get("userId", String.class);
+                String profileImageUrl = claims.get("profileImageUrl", String.class);
 
                 // Set authentication in SecurityContext
                 SecurityContextHolder.getContext()
-                        .setAuthentication(new GrantsAuthentication(claims.getSubject(), grants));
+                        .setAuthentication(new GrantsAuthentication(claims.getSubject(), userId, profileImageUrl, grants));
             }
         } catch (Exception e) {
             // Token invalid or expired - continue without auth
