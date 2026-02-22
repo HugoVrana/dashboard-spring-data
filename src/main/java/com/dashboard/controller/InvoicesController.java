@@ -201,6 +201,10 @@ public class InvoicesController {
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
         GrantsAuthentication auth = GrantsAuthentication.current();
+        String imageUrl = "";
+        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
+            imageUrl = auth.getProfileImageUrl();
+        }
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
@@ -213,7 +217,7 @@ public class InvoicesController {
                         "amount", invoice.getAmount(),
                         "status", invoice.getStatus(),
                         "customerName", customer.getName(),
-                        "userImageUrl", auth.getProfileImageUrl()
+                        "userImageUrl", imageUrl
                 ))
                 .build();
         activityFeedService.publishEvent(event);
@@ -236,7 +240,7 @@ public class InvoicesController {
             throw new ResourceNotFoundException("Invoice with id " + id + " not found");
         }
 
-        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomer_id());
+        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
         Optional<Customer> optionalCustomer = customersService.getCustomer(customerId);
         if (optionalCustomer.isEmpty()) {
             throw new ResourceNotFoundException("Customer with id " + customerId + " not found");
@@ -257,6 +261,10 @@ public class InvoicesController {
         invoiceRead.setCustomer(customerMapper.toRead(customer));
 
         GrantsAuthentication auth = GrantsAuthentication.current();
+        String imageUrl = "";
+        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
+            imageUrl = auth.getProfileImageUrl();
+        }
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
@@ -269,7 +277,7 @@ public class InvoicesController {
                         "amount", invoice.getAmount(),
                         "status", invoice.getStatus(),
                         "customerName", customer.getName(),
-                        "customerImageUrl", auth.getProfileImageUrl()
+                        "userImageUrl", imageUrl
                 ))
                 .build();
         activityFeedService.publishEvent(event);
@@ -304,6 +312,10 @@ public class InvoicesController {
         }
 
         GrantsAuthentication auth = GrantsAuthentication.current();
+        String imageUrl = "";
+        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
+            imageUrl = auth.getProfileImageUrl();
+        }
 
         // Emit activity event
         ActivityEvent event = ActivityEvent.builder()
@@ -314,7 +326,7 @@ public class InvoicesController {
                 .metadata(Map.of(
                         "invoiceId", id,
                         "customerName", invoice.getCustomer().getName(),
-                        "customerImageUrl", auth.getProfileImageUrl()
+                        "userImageUrl", imageUrl
                 ))
                 .build();
         activityFeedService.publishEvent(event);

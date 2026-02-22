@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class InvoiceUpdate {
     @NotNull(value = "Id is required")
     @NotEmpty
-    private String invoice_id;
+    private String id;
 
     @NotNull(value = "Status is required")
     @NotEmpty
@@ -22,11 +22,10 @@ public class InvoiceUpdate {
 
     @NotNull(value = "Customer Id is required")
     @NotEmpty
-    @JsonProperty("customer_id")
-    @NotBlank(message = "customer_id is required")
+    @NotBlank(message = "customerId is required")
     @Pattern(
             regexp = "^[a-fA-F0-9]{24}$",
-            message = "customer_id must be a 24-char hex ObjectId"
+            message = "customerId must be a 24-char hex ObjectId"
     )
-    private String customer_id;
+    private String customerId;
 }
