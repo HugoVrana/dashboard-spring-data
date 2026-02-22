@@ -1,5 +1,6 @@
 package com.dashboard.authentication;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +14,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GrantsAuthentication implements Authentication {
     private final String username;
+    @Getter
     private final String userId;
+    @Getter
     private final String profileImageUrl;
     private final List<String> grants;
     private boolean authenticated = true;
@@ -31,14 +34,6 @@ public class GrantsAuthentication implements Authentication {
             return grantsAuth;
         }
         throw new IllegalStateException("No GrantsAuthentication in SecurityContext - this method should only be called from authenticated endpoints");
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getProfileImageUrl() {
-        return profileImageUrl;
     }
 
     @Override
