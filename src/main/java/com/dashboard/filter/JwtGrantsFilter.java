@@ -38,6 +38,9 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
                 List<String> grants = claims.get("grants", List.class);
                 String userId = claims.get("userId", String.class);
                 String profileImageUrl = claims.get("profileImageUrl", String.class);
+                if (profileImageUrl == null) {
+                    profileImageUrl = "";
+                }
 
                 // Set authentication in SecurityContext
                 SecurityContextHolder.getContext()
