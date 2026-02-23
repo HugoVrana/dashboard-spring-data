@@ -1,5 +1,8 @@
 package com.dashboard.service.interfaces;
 
+import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
+import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
 import com.dashboard.model.entities.Invoice;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -12,7 +15,8 @@ public interface IInvoiceService {
     List<Invoice> getInvoicesByStatus(String status);
     List<Invoice> getLatestInvoice(Integer indexFrom, Integer indexTo);
     Page<Invoice> searchInvoices(String rawTerm, Pageable pageable);
-    Optional<Invoice> getInvoiceById(ObjectId id);
-    Invoice insertInvoice(Invoice invoice);
-    Invoice updateInvoice(Invoice invoice);
+    Invoice getInvoiceById(String id);
+    InvoiceRead createInvoice(InvoiceCreate invoiceCreate);
+    InvoiceRead updateInvoice(String id, InvoiceUpdate invoiceUpdate);
+    void deleteInvoice(String id);
 }

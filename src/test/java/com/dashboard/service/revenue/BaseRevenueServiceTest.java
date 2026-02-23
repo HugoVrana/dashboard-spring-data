@@ -14,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Month;
+import java.time.Year;
+
 @Epic("Revenue")
 @Feature("Revenue Service")
 @Tag("service-revenue")
@@ -32,7 +35,8 @@ public abstract class BaseRevenueServiceTest {
     void setUp() {
         testRevenue = new Revenue();
         testRevenue.set_id(new ObjectId());
-        testRevenue.setMonth("January");
+        testRevenue.setMonth(Month.JANUARY);
+        testRevenue.setYear(Year.of(2024));
         testRevenue.setRevenue(10000.0);
         testRevenue.setAudit(new Audit());
     }

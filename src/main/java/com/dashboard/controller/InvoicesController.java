@@ -1,24 +1,14 @@
 package com.dashboard.controller;
 
-import com.dashboard.authentication.GrantsAuthentication;
-import com.dashboard.common.model.ActivityEvent;
-import com.dashboard.common.model.Audit;
-import com.dashboard.common.model.exception.NotFoundException;
-import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
 import com.dashboard.dataTransferObject.page.PageRead;
 import com.dashboard.dataTransferObject.page.PageRequest;
-import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.mapper.interfaces.IInvoiceSearchMapper;
-import com.dashboard.model.ActivityEventType;
-import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.InvoiceSearchDocument;
-import com.dashboard.service.interfaces.IActivityFeedService;
-import com.dashboard.service.interfaces.ICustomerService;
 import com.dashboard.service.interfaces.IInvoiceSearchService;
 import com.dashboard.service.interfaces.IInvoiceService;
 import jakarta.validation.Valid;
@@ -31,9 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -43,43 +32,23 @@ public class InvoicesController {
 
     private final IInvoiceService invoiceService;
     private final IInvoiceSearchService invoiceSearchService;
-    private final ICustomerService customersService;
     private final IInvoiceMapper invoiceMapper;
-    private final ICustomerMapper customerMapper;
     private final IInvoiceSearchMapper invoiceSearchMapper;
-    private final IActivityFeedService activityFeedService;
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
-        List<Invoice> invoices = invoiceService.getAllInvoices();
-        List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for (Invoice invoice : invoices) {
-            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
-            invoiceReads.add(invoiceRead);
-        }
+        List<InvoiceRead> invoiceReads = invoiceService.getAllInvoices().stream()
+                .map(invoiceMapper::toReadWithCustomer)
+                .toList();
         return ResponseEntity.ok(invoiceReads);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<InvoiceRead> getInvoiceById(@PathVariable("id") String id) {
-
-        if (!ObjectId.isValid(id)) {
-            throw new ResourceNotFoundException("This id is invalid");
-        }
-
-        ObjectId invoiceId = new ObjectId(id);
-        Optional<Invoice> optionalInvoice = invoiceService.getInvoiceById(invoiceId);
-        if (optionalInvoice.isEmpty()) {
-            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
-        }
-
-        Invoice invoice = optionalInvoice.get();
-        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-        invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
-        return ResponseEntity.ok(invoiceRead);
+        Invoice invoice = invoiceService.getInvoiceById(id);
+        return ResponseEntity.ok(invoiceMapper.toReadWithCustomer(invoice));
     }
 
     @GetMapping("/latest")
@@ -92,12 +61,9 @@ public class InvoicesController {
         List<Invoice> invoices = (indexFrom == null || indexTo == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getLatestInvoice(indexFrom, indexTo);
-        List<InvoiceRead> invoiceReads = new ArrayList<>();
-        for (Invoice invoice : invoices) {
-            InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-            invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
-            invoiceReads.add(invoiceRead);
-        }
+        List<InvoiceRead> invoiceReads = invoices.stream()
+                .map(invoiceMapper::toReadWithCustomer)
+                .toList();
         return ResponseEntity.ok(invoiceReads);
     }
 
@@ -181,156 +147,23 @@ public class InvoicesController {
     @PostMapping()
     @PreAuthorize("hasAuthority('dashboard-invoices-create')")
     public ResponseEntity<InvoiceRead> createInvoice(@Valid @RequestBody InvoiceCreate invoiceCreate) {
-        // At this point, customerId is present and matches ObjectId pattern.
-        ObjectId customerId = new ObjectId(invoiceCreate.getCustomer_id());
-
-        Customer customer = customersService.getCustomer(customerId)
-                .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
-
-        Instant now = Instant.now();
-
-        Audit audit = new Audit();
-        audit.setCreatedAt(now);
-        audit.setUpdatedAt(now);
-
-        Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
-        invoice.setDate(LocalDate.now());
-        invoice.setAudit(audit);
-        invoice = invoiceService.insertInvoice(invoice);// save returns entity with id populated
-        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-        invoiceRead.setCustomer(customerMapper.toRead(customer));
-
-        GrantsAuthentication auth = GrantsAuthentication.current();
-        String imageUrl = "";
-        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
-            imageUrl = auth.getProfileImageUrl();
-        }
-
-        // Emit activity event
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_CREATED.name())
-                .actorId(auth.getUserId())
-                .metadata(Map.of(
-                        "invoiceId", invoice.get_id().toHexString(),
-                        "amount", invoice.getAmount(),
-                        "status", invoice.getStatus(),
-                        "customerName", customer.getName(),
-                        "userImageUrl", imageUrl
-                ))
-                .build();
-        activityFeedService.publishEvent(event);
-
-        // Build a Location like /invoices/{id}
-        URI location = URI.create("/invoices/" + invoice.get_id());
+        InvoiceRead invoiceRead = invoiceService.createInvoice(invoiceCreate);
+        URI location = URI.create("/invoices/" + invoiceRead.getId());
         return ResponseEntity.created(location).body(invoiceRead);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-update')")
     public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceUpdate invoiceUpdate) {
-        if (!ObjectId.isValid(id)) {
-            throw new ResourceNotFoundException("This id is invalid");
-        }
-        ObjectId invoiceId = new ObjectId(id);
-
-        Optional<Invoice> unupdatedOptionalInvoice = invoiceService.getInvoiceById(invoiceId);
-        if (unupdatedOptionalInvoice.isEmpty()) {
-            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
-        }
-
-        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
-        Optional<Customer> optionalCustomer = customersService.getCustomer(customerId);
-        if (optionalCustomer.isEmpty()) {
-            throw new ResourceNotFoundException("Customer with id " + customerId + " not found");
-        }
-
-        Invoice unupdatedInvoice = unupdatedOptionalInvoice.get();
-        Audit newAudit = unupdatedInvoice.getAudit();
-        newAudit.setUpdatedAt(Instant.now());
-
-        Customer customer = optionalCustomer.get();
-        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
-        invoice.setDate(unupdatedInvoice.getDate());
-        invoice.setAudit(newAudit);
-
-        invoice = invoiceService.updateInvoice(invoice);
-
-        InvoiceRead invoiceRead = invoiceMapper.toRead(invoice);
-        invoiceRead.setCustomer(customerMapper.toRead(customer));
-
-        GrantsAuthentication auth = GrantsAuthentication.current();
-        String imageUrl = "";
-        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
-            imageUrl = auth.getProfileImageUrl();
-        }
-
-        // Emit activity event
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_UPDATED.name())
-                .actorId(auth.getUserId())
-                .metadata(Map.of(
-                        "invoiceId", invoice.get_id().toHexString(),
-                        "amount", invoice.getAmount(),
-                        "status", invoice.getStatus(),
-                        "customerName", customer.getName(),
-                        "userImageUrl", imageUrl
-                ))
-                .build();
-        activityFeedService.publishEvent(event);
-
-        // Build a Location like /invoices/{id}
-        URI location = URI.create("/invoices/" + invoice.get_id());
+        InvoiceRead invoiceRead = invoiceService.updateInvoice(id, invoiceUpdate);
+        URI location = URI.create("/invoices/" + invoiceRead.getId());
         return ResponseEntity.created(location).body(invoiceRead);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-delete')")
     public ResponseEntity<Integer> deleteInvoice(@PathVariable("id") String id) {
-        if (!ObjectId.isValid(id)) {
-            throw new ResourceNotFoundException("This id is invalid");
-        }
-        ObjectId invoiceId = new ObjectId(id);
-        Optional<Invoice> optionalInvoice = invoiceService.getInvoiceById(invoiceId);
-        if (optionalInvoice.isEmpty()) {
-            throw new ResourceNotFoundException("Invoice with id " + id + " not found");
-        }
-
-        Invoice invoice = optionalInvoice.get();
-        Audit audit = invoice.getAudit();
-        audit.setDeletedAt(Instant.now());
-        invoice.setAudit(audit);
-        invoiceService.updateInvoice(invoice);
-        invoiceSearchService.markInvoiceDeleted(invoiceId);
-
-        optionalInvoice = invoiceService.getInvoiceById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            throw new ResourceNotFoundException("Invoice with id " + id + " not deleted");
-        }
-
-        GrantsAuthentication auth = GrantsAuthentication.current();
-        String imageUrl = "";
-        if (auth != null && auth.getProfileImageUrl() != null && !auth.getProfileImageUrl().isEmpty()) {
-            imageUrl = auth.getProfileImageUrl();
-        }
-
-        // Emit activity event
-        ActivityEvent event = ActivityEvent.builder()
-                .id(UUID.randomUUID().toString())
-                .timestamp(Instant.now())
-                .type(ActivityEventType.INVOICE_DELETED.name())
-                .actorId(auth.getUserId())
-                .metadata(Map.of(
-                        "invoiceId", id,
-                        "customerName", invoice.getCustomer().getName(),
-                        "userImageUrl", imageUrl
-                ))
-                .build();
-        activityFeedService.publishEvent(event);
-
+        invoiceService.deleteInvoice(id);
         return ResponseEntity.ok(1);
     }
 }
