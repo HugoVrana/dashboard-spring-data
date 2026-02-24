@@ -1,9 +1,19 @@
 package com.dashboard.service;
 
+import com.dashboard.authentication.GrantsAuthentication;
+import com.dashboard.common.model.ActivityEvent;
+import com.dashboard.common.model.Audit;
+import com.dashboard.common.model.exception.NotFoundException;
+import com.dashboard.common.model.exception.ResourceNotFoundException;
+import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
+import com.dashboard.dataTransferObject.invoice.InvoiceRead;
+import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
+import com.dashboard.mapper.interfaces.IInvoiceMapper;
+import com.dashboard.model.ActivityEventType;
+import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
-import com.dashboard.service.interfaces.IInvoiceSearchService;
-import com.dashboard.service.interfaces.IInvoiceService;
+import com.dashboard.service.interfaces.*;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -17,10 +27,9 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
@@ -30,6 +39,10 @@ public class InvoiceService implements IInvoiceService {
     private final IInvoiceRepository invoiceRepository;
     private final MongoTemplate mongoTemplate;
     private final IInvoiceSearchService invoiceSearchService;
+    private final ICustomerService customerService;
+    private final IInvoiceMapper invoiceMapper;
+    private final IActivityFeedService activityFeedService;
+    private final IRevenueService revenueService;
 
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findByAudit_DeletedAtIsNull();
@@ -147,26 +160,116 @@ public class InvoiceService implements IInvoiceService {
 
             List<Document> countDoc = result.getList("totalCount", Document.class);
             if (!countDoc.isEmpty()) {
-                total = countDoc.get(0).getInteger("count");
+                total = countDoc.getFirst().getInteger("count");
             }
         }
 
         return new PageImpl<>(invoices, pageable, total);
     }
 
-    public Optional<Invoice> getInvoiceById(ObjectId id){
-        return invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(id);
+    public Invoice getInvoiceById(String id) {
+        return getInvoiceOrThrow(id);
     }
 
-    public Invoice insertInvoice(Invoice invoice) {
+    public InvoiceRead createInvoice(InvoiceCreate invoiceCreate) {
+        ObjectId customerId = new ObjectId(invoiceCreate.getCustomer_id());
+        Customer customer = customerService.getCustomer(customerId)
+                .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
+
+        Instant now = Instant.now();
+        Audit audit = new Audit();
+        audit.setCreatedAt(now);
+        audit.setUpdatedAt(now);
+
+        Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
+        invoice.setDate(LocalDate.now());
+        invoice.setAudit(audit);
+        invoice = insertInvoice(invoice);
+
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount());
+        publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice, Map.of(
+                "amount", invoice.getAmount(),
+                "status", invoice.getStatus()
+        ));
+
+        return invoiceMapper.toReadWithCustomer(invoice);
+    }
+
+    public InvoiceRead updateInvoice(String id, InvoiceUpdate invoiceUpdate) {
+        Invoice existingInvoice = getInvoiceOrThrow(id);
+
+        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
+        Customer customer = customerService.getCustomer(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id " + customerId + " not found"));
+
+        Audit audit = existingInvoice.getAudit();
+        audit.setUpdatedAt(Instant.now());
+
+        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
+        invoice.setDate(existingInvoice.getDate());
+        invoice.setAudit(audit);
+        invoice = saveInvoice(invoice);
+
+        publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice, Map.of(
+                "amount", invoice.getAmount(),
+                "status", invoice.getStatus()
+        ));
+
+        return invoiceMapper.toReadWithCustomer(invoice);
+    }
+
+    public void deleteInvoice(String id) {
+        Invoice invoice = getInvoiceOrThrow(id);
+
+        Audit audit = invoice.getAudit();
+        audit.setDeletedAt(Instant.now());
+        invoice.setAudit(audit);
+        saveInvoice(invoice);
+        invoiceSearchService.markInvoiceDeleted(invoice.get_id());
+
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), -invoice.getAmount());
+        publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
+    }
+
+    private Invoice insertInvoice(Invoice invoice) {
         Invoice saved = invoiceRepository.insert(invoice);
         invoiceSearchService.syncInvoice(saved);
         return saved;
     }
 
-    public Invoice updateInvoice(Invoice invoice) {
+    private Invoice saveInvoice(Invoice invoice) {
         Invoice saved = invoiceRepository.save(invoice);
         invoiceSearchService.syncInvoice(saved);
         return saved;
+    }
+
+    private void publishActivityEvent(ActivityEventType type, Invoice invoice, Map<String, Object> extraMetadata) {
+        GrantsAuthentication auth = GrantsAuthentication.current();
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("invoiceId", invoice.get_id().toHexString());
+        metadata.put("customerName", invoice.getCustomer().getName());
+        metadata.put("userImageUrl", auth.getProfileImageUrlOrEmpty());
+        metadata.putAll(extraMetadata);
+
+        ActivityEvent event = ActivityEvent.builder()
+                .id(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .type(type.name())
+                .actorId(auth.getUserId())
+                .metadata(metadata)
+                .build();
+        activityFeedService.publishEvent(event);
+    }
+
+    private Invoice getInvoiceOrThrow(String id) {
+        if (!ObjectId.isValid(id)) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+        ObjectId objectId = new ObjectId(id);
+        Optional<Invoice> optional = invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(objectId);
+        if (optional.isEmpty()) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+        return optional.get();
     }
 }

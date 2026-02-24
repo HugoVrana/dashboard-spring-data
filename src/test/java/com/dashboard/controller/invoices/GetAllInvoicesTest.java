@@ -28,8 +28,7 @@ class GetAllInvoicesTest extends BaseInvoicesControllerTest {
         CustomerRead customerRead = testInvoiceRead.getCustomer();
 
         when(invoiceService.getAllInvoices()).thenReturn(List.of(testInvoice));
-        when(invoiceMapper.toRead(testInvoice)).thenReturn(testInvoiceRead);
-        when(customerMapper.toRead(testInvoice.getCustomer())).thenReturn(customerRead);
+        when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
 
         mockMvc.perform(get("/invoices/"))
                 .andExpect(status().isOk())

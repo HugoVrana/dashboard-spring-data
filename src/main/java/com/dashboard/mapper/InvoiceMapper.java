@@ -3,14 +3,19 @@ package com.dashboard.mapper;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
+import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class InvoiceMapper implements IInvoiceMapper {
+
+    private final ICustomerMapper customerMapper;
 
     @Override
     public InvoiceRead toRead(Invoice invoice) {
@@ -19,6 +24,13 @@ public class InvoiceMapper implements IInvoiceMapper {
         invoiceRead.setAmount(invoice.getAmount());
         invoiceRead.setStatus(invoice.getStatus());
         invoiceRead.setDate(invoice.getDate());
+        return invoiceRead;
+    }
+
+    @Override
+    public InvoiceRead toReadWithCustomer(Invoice invoice) {
+        InvoiceRead invoiceRead = toRead(invoice);
+        invoiceRead.setCustomer(customerMapper.toRead(invoice.getCustomer()));
         return invoiceRead;
     }
 

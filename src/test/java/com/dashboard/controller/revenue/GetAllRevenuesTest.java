@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testRevenueId.toHexString()))
-                .andExpect(jsonPath("$[0].month").value(testMonth))
+                .andExpect(jsonPath("$[0].month").value(testMonth.name()))
                 .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount));
     }
 
@@ -53,13 +54,14 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         Revenue secondRevenue = new Revenue();
         ObjectId secondRevenueId = new ObjectId();
         secondRevenue.set_id(secondRevenueId);
-        secondRevenue.setMonth("Feb");
+        secondRevenue.setMonth(Month.FEBRUARY);
+        secondRevenue.setYear(2024);
         secondRevenue.setRevenue(6500.00);
         secondRevenue.setAudit(new Audit());
 
         RevenueRead secondRevenueRead = new RevenueRead();
         secondRevenueRead.setId(secondRevenueId.toHexString());
-        secondRevenueRead.setMonth("Feb");
+        secondRevenueRead.setMonth(Month.FEBRUARY.name());
         secondRevenueRead.setRevenue(6500.00);
 
         List<Revenue> revenues = List.of(testRevenue, secondRevenue);
@@ -72,9 +74,9 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].month").value(testMonth))
+                .andExpect(jsonPath("$[0].month").value(testMonth.name()))
                 .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount))
-                .andExpect(jsonPath("$[1].month").value("Feb"))
+                .andExpect(jsonPath("$[1].month").value("FEBRUARY"))
                 .andExpect(jsonPath("$[1].revenue").value(6500.00));
     }
 }

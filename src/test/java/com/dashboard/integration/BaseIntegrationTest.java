@@ -25,9 +25,9 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
-
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 /**
@@ -139,8 +139,8 @@ public abstract class BaseIntegrationTest {
     protected Revenue createAndSaveRevenue() {
         Revenue revenue = new Revenue();
         revenue.set_id(new ObjectId());
-        revenue.setMonth(faker.options().option("January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"));
+        revenue.setMonth(Month.of(faker.number().numberBetween(1, 12)));
+        revenue.setYear(2024);
         revenue.setRevenue(faker.number().randomDouble(2, 1000, 100000));
         revenue.setAudit(createActiveAudit());
         return revenueRepository.save(revenue);
