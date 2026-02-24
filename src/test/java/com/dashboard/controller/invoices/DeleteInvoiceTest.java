@@ -1,12 +1,12 @@
 package com.dashboard.controller.invoices;
 
-import com.dashboard.model.entities.Invoice;
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.util.Optional;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,12 +17,7 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should delete invoice successfully")
     void deleteInvoice_DeletesInvoiceSuccessfully() throws Exception {
-        Invoice testInvoice = createTestInvoice();
-
-        when(invoiceService.getInvoiceById(testInvoiceId))
-                .thenReturn(Optional.of(testInvoice))
-                .thenReturn(Optional.empty());
-        when(invoiceService.updateInvoice(any(Invoice.class))).thenReturn(testInvoice);
+        doNothing().when(invoiceService).deleteInvoice(testInvoiceId.toHexString());
 
         mockMvc.perform(delete("/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isOk())
@@ -32,7 +27,8 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when invoice not found")
     void deleteInvoice_Returns404WhenNotFound() throws Exception {
-        when(invoiceService.getInvoiceById(testInvoiceId)).thenReturn(Optional.empty());
+        doThrow(new ResourceNotFoundException("Invoice not found"))
+                .when(invoiceService).deleteInvoice(testInvoiceId.toHexString());
 
         mockMvc.perform(delete("/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isNotFound());
@@ -41,6 +37,9 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when id is invalid")
     void deleteInvoice_Returns404WhenIdInvalid() throws Exception {
+        doThrow(new ResourceNotFoundException("This id is invalid"))
+                .when(invoiceService).deleteInvoice("invalid-id");
+
         mockMvc.perform(delete("/invoices/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }

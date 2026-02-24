@@ -10,6 +10,8 @@ public interface IInvoiceMapper {
 
     InvoiceRead toRead(Invoice invoice);
 
+    InvoiceRead toReadWithCustomer(Invoice invoice);
+
     Invoice toModel(InvoiceCreate invoiceCreate, Customer customer);
 
     Invoice toModel(InvoiceUpdate invoiceUpdate, Customer customer);

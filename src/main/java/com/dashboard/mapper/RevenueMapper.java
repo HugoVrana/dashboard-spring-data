@@ -11,7 +11,7 @@ public class RevenueMapper implements IRevenueMapper {
     public RevenueRead toRead(Revenue revenue) {
         RevenueRead revenueRead = new RevenueRead();
         revenueRead.setId(revenue.get_id().toHexString());
-        revenueRead.setMonth(revenue.getMonth());
+        revenueRead.setMonth(revenue.getMonth().name());
         revenueRead.setRevenue(revenue.getRevenue());
         return revenueRead;
     }

@@ -1,5 +1,6 @@
 package com.dashboard.controller.invoices;
 
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.model.entities.Invoice;
@@ -7,8 +8,6 @@ import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,9 +25,8 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
         InvoiceRead testInvoiceRead = createTestInvoiceRead(testInvoice);
         CustomerRead customerRead = testInvoiceRead.getCustomer();
 
-        when(invoiceService.getInvoiceById(testInvoiceId)).thenReturn(Optional.of(testInvoice));
-        when(invoiceMapper.toRead(testInvoice)).thenReturn(testInvoiceRead);
-        when(customerMapper.toRead(testInvoice.getCustomer())).thenReturn(customerRead);
+        when(invoiceService.getInvoiceById(testInvoiceId.toHexString())).thenReturn(testInvoice);
+        when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
 
         mockMvc.perform(get("/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isOk())
@@ -41,7 +39,8 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when invoice not found")
     void getInvoiceById_Returns404WhenNotFound() throws Exception {
-        when(invoiceService.getInvoiceById(testInvoiceId)).thenReturn(Optional.empty());
+        when(invoiceService.getInvoiceById(testInvoiceId.toHexString()))
+                .thenThrow(new ResourceNotFoundException("Invoice not found"));
 
         mockMvc.perform(get("/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isNotFound());
@@ -50,6 +49,9 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when id is invalid")
     void getInvoiceById_Returns404WhenIdInvalid() throws Exception {
+        when(invoiceService.getInvoiceById("invalid-id"))
+                .thenThrow(new ResourceNotFoundException("This id is invalid"));
+
         mockMvc.perform(get("/invoices/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }

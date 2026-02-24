@@ -24,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.dashboard.config.TestConfig;
+import java.time.Month;
 
 @Epic("Revenue")
 @Feature("Revenue API")
@@ -54,24 +55,27 @@ public abstract class BaseRevenueControllerTest {
     protected Revenue testRevenue;
     protected RevenueRead testRevenueRead;
 
-    protected String testMonth;
+    protected Month testMonth;
+    protected Integer testYear;
     protected Double testRevenueAmount;
 
     @BeforeEach
     void setUpBase() {
         testRevenueId = new ObjectId();
-        testMonth = faker.options().option("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+        testMonth = Month.of(faker.number().numberBetween(1, 12));
+        testYear = 2024;
         testRevenueAmount = faker.number().randomDouble(2, 1000, 50000);
 
         testRevenue = new Revenue();
         testRevenue.set_id(testRevenueId);
         testRevenue.setMonth(testMonth);
+        testRevenue.setYear(testYear);
         testRevenue.setRevenue(testRevenueAmount);
         testRevenue.setAudit(new Audit());
 
         testRevenueRead = new RevenueRead();
         testRevenueRead.setId(testRevenueId.toHexString());
-        testRevenueRead.setMonth(testMonth);
+        testRevenueRead.setMonth(testMonth.name());
         testRevenueRead.setRevenue(testRevenueAmount);
     }
 }
