@@ -24,9 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.dashboard.config.TestConfig;
-
 import java.time.Month;
-import java.time.Year;
 
 @Epic("Revenue")
 @Feature("Revenue API")
@@ -58,14 +56,14 @@ public abstract class BaseRevenueControllerTest {
     protected RevenueRead testRevenueRead;
 
     protected Month testMonth;
-    protected Year testYear;
+    protected Integer testYear;
     protected Double testRevenueAmount;
 
     @BeforeEach
     void setUpBase() {
         testRevenueId = new ObjectId();
         testMonth = Month.of(faker.number().numberBetween(1, 12));
-        testYear = Year.of(2024);
+        testYear = 2024;
         testRevenueAmount = faker.number().randomDouble(2, 1000, 50000);
 
         testRevenue = new Revenue();

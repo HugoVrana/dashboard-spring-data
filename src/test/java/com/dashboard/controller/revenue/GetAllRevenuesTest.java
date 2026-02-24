@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
 import java.time.Month;
-import java.time.Year;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         ObjectId secondRevenueId = new ObjectId();
         secondRevenue.set_id(secondRevenueId);
         secondRevenue.setMonth(Month.FEBRUARY);
-        secondRevenue.setYear(Year.of(2024));
+        secondRevenue.setYear(2024);
         secondRevenue.setRevenue(6500.00);
         secondRevenue.setAudit(new Audit());
 

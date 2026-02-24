@@ -13,9 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.Month;
-import java.time.Year;
 
 @Epic("Revenue")
 @Feature("Revenue Service")
@@ -36,7 +34,7 @@ public abstract class BaseRevenueServiceTest {
         testRevenue = new Revenue();
         testRevenue.set_id(new ObjectId());
         testRevenue.setMonth(Month.JANUARY);
-        testRevenue.setYear(Year.of(2024));
+        testRevenue.setYear(2024);
         testRevenue.setRevenue(10000.0);
         testRevenue.setAudit(new Audit());
     }

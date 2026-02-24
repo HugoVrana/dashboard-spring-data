@@ -7,8 +7,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 import java.time.Month;
-import java.time.Year;
 
 @Data
 @Document(collection = "revenues")
@@ -16,8 +18,14 @@ import java.time.Year;
 public class Revenue {
     @Id
     private ObjectId _id;
+
     private Month month;
-    private Year year;
+
+    @Min(2000)
+    @Max(9999)
+    private Integer year;
+
     private Double revenue;
+    
     private Audit audit;
 }

@@ -1,11 +1,15 @@
 package com.dashboard.service.invoice;
 
 import com.dashboard.common.model.Audit;
+import com.dashboard.mapper.interfaces.IInvoiceMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
-import com.dashboard.service.InvoiceSearchService;
 import com.dashboard.service.InvoiceService;
+import com.dashboard.service.interfaces.IActivityFeedService;
+import com.dashboard.service.interfaces.ICustomerService;
+import com.dashboard.service.interfaces.IInvoiceSearchService;
+import com.dashboard.service.interfaces.IRevenueService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import org.bson.types.ObjectId;
@@ -29,10 +33,22 @@ public abstract class BaseInvoiceServiceTest {
     protected IInvoiceRepository invoiceRepository;
 
     @Mock
-    protected InvoiceSearchService invoiceSearchService;
+    protected MongoTemplate mongoTemplate;
 
     @Mock
-    protected MongoTemplate mongoTemplate;
+    protected IInvoiceSearchService invoiceSearchService;
+
+    @Mock
+    protected ICustomerService customerService;
+
+    @Mock
+    protected IInvoiceMapper invoiceMapper;
+
+    @Mock
+    protected IActivityFeedService activityFeedService;
+
+    @Mock
+    protected IRevenueService revenueService;
 
     @InjectMocks
     protected InvoiceService invoiceService;

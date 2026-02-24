@@ -29,7 +29,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -161,7 +160,7 @@ public class InvoiceService implements IInvoiceService {
 
             List<Document> countDoc = result.getList("totalCount", Document.class);
             if (!countDoc.isEmpty()) {
-                total = countDoc.get(0).getInteger("count");
+                total = countDoc.getFirst().getInteger("count");
             }
         }
 
@@ -170,19 +169,6 @@ public class InvoiceService implements IInvoiceService {
 
     public Invoice getInvoiceById(String id) {
         return getInvoiceOrThrow(id);
-    }
-
-
-    private Invoice getInvoiceOrThrow(String id) {
-        if (!ObjectId.isValid(id)) {
-            throw new ResourceNotFoundException("This id is invalid");
-        }
-        ObjectId objectId = new ObjectId(id);
-        Optional<Invoice> optional = invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(objectId);
-        if (optional.isEmpty()) {
-            throw new ResourceNotFoundException("This id is invalid");
-        }
-        return optional.get();
     }
 
     public InvoiceRead createInvoice(InvoiceCreate invoiceCreate) {
@@ -200,7 +186,7 @@ public class InvoiceService implements IInvoiceService {
         invoice.setAudit(audit);
         invoice = insertInvoice(invoice);
 
-        revenueService.adjustRevenue(invoice.getDate().getMonth(), Year.from(invoice.getDate()), invoice.getAmount());
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount());
         publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice, Map.of(
                 "amount", invoice.getAmount(),
                 "status", invoice.getStatus()
@@ -241,7 +227,7 @@ public class InvoiceService implements IInvoiceService {
         saveInvoice(invoice);
         invoiceSearchService.markInvoiceDeleted(invoice.get_id());
 
-        revenueService.adjustRevenue(invoice.getDate().getMonth(), Year.from(invoice.getDate()), -invoice.getAmount());
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), -invoice.getAmount());
         publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
     }
 
@@ -273,5 +259,17 @@ public class InvoiceService implements IInvoiceService {
                 .metadata(metadata)
                 .build();
         activityFeedService.publishEvent(event);
+    }
+
+    private Invoice getInvoiceOrThrow(String id) {
+        if (!ObjectId.isValid(id)) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+        ObjectId objectId = new ObjectId(id);
+        Optional<Invoice> optional = invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(objectId);
+        if (optional.isEmpty()) {
+            throw new ResourceNotFoundException("This id is invalid");
+        }
+        return optional.get();
     }
 }

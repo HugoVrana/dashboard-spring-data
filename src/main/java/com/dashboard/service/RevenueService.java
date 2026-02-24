@@ -6,16 +6,9 @@ import com.dashboard.service.interfaces.IRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-
 import java.time.Month;
-import java.time.Year;
 import java.util.List;
-
-import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 
 @Service
 @Scope("singleton")
@@ -29,9 +22,23 @@ public class RevenueService implements IRevenueService {
         return revenueRepository.queryByAudit_DeletedAtIsNull();
     }
 
-    public void adjustRevenue(Month month, Year year, Double delta) {
-        Revenue r = revenueRepository.findRevenueByMonthAndYear(month, year);
-        r.setRevenue(r.getRevenue() + delta);
-        revenueRepository.save(r);
+    public void adjustRevenue(Month month, Integer year, Double delta) {
+        try {
+            List<Revenue> revenueList = revenueRepository.getRevenueByYearIsAndMonthIs(year, month);
+            if (revenueList.isEmpty()) {
+                Revenue revenue = new Revenue();
+                revenue.setMonth(month);
+                revenue.setYear(year);
+                revenue.setRevenue(delta);
+                revenueRepository.save(revenue);
+            }
+
+            for (Revenue revenue : revenueList) {
+                revenue.setRevenue(revenue.getRevenue() + delta);
+                revenueRepository.save(revenue);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
