@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Grant Combinations")
@@ -42,7 +44,7 @@ public class GrantCombinationTest extends BaseAuthorizationSecurityTest {
                         .header("Authorization", authHeader))
                 .andExpect(status().isOk());
 
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 500.0, testCustomer.get_id().toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
         mockMvc.perform(post("/invoices")
                         .header("Authorization", authHeader)
                         .contentType(MediaType.APPLICATION_JSON)

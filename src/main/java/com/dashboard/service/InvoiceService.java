@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public class InvoiceService implements IInvoiceService {
         searchCriteria.add(Criteria.where("customerData.name").regex(regex, "i"));
         searchCriteria.add(Criteria.where("customerData.email").regex(regex, "i"));
         try {
-            double numericValue = Double.parseDouble(term);
+            BigDecimal numericValue = new BigDecimal(term);
             searchCriteria.add(Criteria.where("amount").is(numericValue));
         } catch (NumberFormatException ignored) {
             // Not a number, skip
@@ -230,7 +231,7 @@ public class InvoiceService implements IInvoiceService {
         saveInvoice(invoice);
         invoiceSearchService.markInvoiceDeleted(invoice.get_id());
 
-        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), -invoice.getAmount());
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount().negate());
         publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
     }
 

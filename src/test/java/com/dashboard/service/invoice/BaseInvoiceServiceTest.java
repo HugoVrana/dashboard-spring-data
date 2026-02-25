@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Epic("Invoices")
@@ -69,7 +70,7 @@ public abstract class BaseInvoiceServiceTest {
         testInvoice = new Invoice();
         testInvoice.set_id(testInvoiceId);
         testInvoice.setCustomer(testCustomer);
-        testInvoice.setAmount(1500.00);
+        testInvoice.setAmount(new BigDecimal("1500.00"));
         testInvoice.setDate(LocalDate.now());
         testInvoice.setStatus("pending");
         testInvoice.setAudit(new Audit());

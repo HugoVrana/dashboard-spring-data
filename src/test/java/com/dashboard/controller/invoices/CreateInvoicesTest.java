@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Story("Create Invoice")
@@ -24,7 +26,7 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
         Invoice testInvoice = createTestInvoice();
         InvoiceRead testInvoiceRead = createTestInvoiceRead(testInvoice);
 
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 1000.0, testCustomerId.toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("1000.00"), testCustomerId.toHexString());
 
         when(invoiceService.createInvoice(any(InvoiceCreate.class))).thenReturn(testInvoiceRead);
 
@@ -39,7 +41,7 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 500 when customer not found (NotFoundException not handled as 404)")
     void createInvoice_Returns500WhenCustomerNotFound() throws Exception {
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 1000.0, testCustomerId.toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("1000.00"), testCustomerId.toHexString());
 
         when(invoiceService.createInvoice(any(InvoiceCreate.class)))
                 .thenThrow(new NotFoundException("The provided customer id does not exist"));

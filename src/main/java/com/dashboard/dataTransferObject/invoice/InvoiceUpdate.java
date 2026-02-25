@@ -3,10 +3,15 @@ package com.dashboard.dataTransferObject.invoice;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceUpdate {
     @NotNull(value = "Id is required")
     @NotEmpty
@@ -17,7 +22,7 @@ public class InvoiceUpdate {
     private String status;
 
     @NotNull(value = "Amount is required")
-    private Double amount;
+    private BigDecimal amount;
 
     @NotNull(value = "Customer Id is required")
     @NotEmpty

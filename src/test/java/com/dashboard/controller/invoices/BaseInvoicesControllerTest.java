@@ -34,6 +34,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.dashboard.config.TestConfig;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -72,7 +74,7 @@ public abstract class BaseInvoicesControllerTest {
     protected ObjectId testInvoiceId;
     protected ObjectId testCustomerId;
 
-    protected Double testAmount;
+    protected BigDecimal testAmount;
     protected LocalDate testDate;
     protected String testStatus;
 
@@ -80,7 +82,8 @@ public abstract class BaseInvoicesControllerTest {
     void setUpBase() {
         testInvoiceId = new ObjectId();
         testCustomerId = new ObjectId();
-        testAmount = faker.number().randomDouble(2, 100, 10000);
+        testAmount = BigDecimal.valueOf(faker.number().randomDouble(2, 100, 10000))
+                .setScale(2, RoundingMode.HALF_UP);
         testDate = LocalDate.now();
         testStatus = faker.lorem().word();
     }

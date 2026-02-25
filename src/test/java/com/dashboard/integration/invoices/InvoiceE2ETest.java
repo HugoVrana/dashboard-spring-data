@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +71,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
     @Story("Create Invoice")
     @DisplayName("POST /invoices persists to MongoDB")
     void createInvoice_PersistsToMongoDB() throws Exception {
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 1500.0, testCustomer.get_id().toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("1500.00"), testCustomer.get_id().toHexString());
 
         mockMvc.perform(post("/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-create"))
@@ -79,12 +80,12 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.status").value("pending"))
-                .andExpect(jsonPath("$.amount").value(1500.0));
+                .andExpect(jsonPath("$.amount").value(1500.00));
 
         // Verify persisted in database
         List<Invoice> invoices = invoiceRepository.findByAudit_DeletedAtIsNull();
         assertThat(invoices).hasSize(1);
-        assertThat(invoices.get(0).getAmount()).isEqualTo(1500.0);
+        assertThat(invoices.get(0).getAmount()).isEqualByComparingTo(new BigDecimal("1500.00"));
         assertThat(invoices.get(0).getStatus()).isEqualTo("pending");
     }
 
@@ -97,7 +98,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
                 invoice.get_id().toHexString(),
                 "paid",
-                2500.0,
+                new BigDecimal("2500.00"),
                 testCustomer.get_id().toHexString()
         );
 
@@ -107,12 +108,12 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("paid"))
-                .andExpect(jsonPath("$.amount").value(2500.0));
+                .andExpect(jsonPath("$.amount").value(2500.00));
 
         // Verify updated in database
         Optional<Invoice> updated = invoiceRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(invoice.get_id());
         assertThat(updated).isPresent();
-        assertThat(updated.get().getAmount()).isEqualTo(2500.0);
+        assertThat(updated.get().getAmount()).isEqualByComparingTo(new BigDecimal("2500.00"));
         assertThat(updated.get().getStatus()).isEqualTo("paid");
     }
 
@@ -172,12 +173,12 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         Invoice invoice1 = createAndSaveInvoice(testCustomer);
         Invoice invoice2 = createAndSaveInvoice(testCustomer);
 
-        double expectedTotal = invoice1.getAmount() + invoice2.getAmount();
+        BigDecimal expectedTotal = invoice1.getAmount().add(invoice2.getAmount());
 
         mockMvc.perform(get("/invoices/amount")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(expectedTotal));
+                .andExpect(jsonPath("$").value(expectedTotal.doubleValue()));
     }
 
     @Test

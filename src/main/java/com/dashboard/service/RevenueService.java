@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.time.Month;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class RevenueService implements IRevenueService {
         return revenueRepository.queryByAudit_DeletedAtIsNull();
     }
 
-    public void adjustRevenue(Month month, Integer year, Double delta) {
+    public void adjustRevenue(Month month, Integer year, BigDecimal delta) {
         try {
             List<Revenue> revenueList = revenueRepository.getRevenueByYearIsAndMonthIs(year, month);
             if (revenueList.isEmpty()) {
@@ -34,7 +35,7 @@ public class RevenueService implements IRevenueService {
             }
 
             for (Revenue revenue : revenueList) {
-                revenue.setRevenue(revenue.getRevenue() + delta);
+                revenue.setRevenue(revenue.getRevenue().add(delta));
                 revenueRepository.save(revenue);
             }
         } catch (Exception e) {

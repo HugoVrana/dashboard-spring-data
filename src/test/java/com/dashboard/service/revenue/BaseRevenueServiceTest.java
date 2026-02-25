@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.math.BigDecimal;
 import java.time.Month;
 
 @Epic("Revenue")
@@ -35,7 +36,7 @@ public abstract class BaseRevenueServiceTest {
         testRevenue.set_id(new ObjectId());
         testRevenue.setMonth(Month.JANUARY);
         testRevenue.setYear(2024);
-        testRevenue.setRevenue(10000.0);
+        testRevenue.setRevenue(new BigDecimal("10000.00"));
         testRevenue.setAudit(new Audit());
     }
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -22,24 +23,24 @@ public class GetInvoicesAmountTest extends BaseInvoicesControllerTest {
     @DisplayName("should return total amount when no status provided")
     void getInvoiceAmount_ReturnsTotalAmount() throws Exception {
         Invoice invoice1 = createTestInvoice();
-        invoice1.setAmount(100.0);
+        invoice1.setAmount(new BigDecimal("100.00"));
         Invoice invoice2 = createTestInvoice();
         invoice2.set_id(new ObjectId());
-        invoice2.setAmount(200.0);
+        invoice2.setAmount(new BigDecimal("200.00"));
 
         when(invoiceService.getAllInvoices()).thenReturn(List.of(invoice1, invoice2));
 
         mockMvc.perform(get("/invoices/amount"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("300.0"));
+                .andExpect(content().string("300.00"));
     }
 
     @Test
     @DisplayName("should return amount by status when status provided")
     void getInvoiceAmount_ReturnsAmountByStatus() throws Exception {
         Invoice testInvoice = createTestInvoice();
-        testInvoice.setAmount(150.0);
+        testInvoice.setAmount(new BigDecimal("150.00"));
 
         when(invoiceService.getInvoicesByStatus("paid")).thenReturn(List.of(testInvoice));
 
@@ -47,6 +48,6 @@ public class GetInvoicesAmountTest extends BaseInvoicesControllerTest {
                         .param("status", "paid"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("150.0"));
+                .andExpect(content().string("150.00"));
     }
 }

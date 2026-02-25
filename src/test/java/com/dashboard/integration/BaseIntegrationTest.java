@@ -24,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -99,7 +101,8 @@ public abstract class BaseIntegrationTest {
         Invoice invoice = new Invoice();
         invoice.set_id(new ObjectId());
         invoice.setCustomer(customer);
-        invoice.setAmount(faker.number().randomDouble(2, 100, 10000));
+        invoice.setAmount(BigDecimal.valueOf(faker.number().randomDouble(2, 100, 10000))
+                .setScale(2, RoundingMode.HALF_UP));
         invoice.setDate(LocalDate.now());
         invoice.setStatus(faker.options().option("pending", "paid", "cancelled"));
         invoice.setAudit(createActiveAudit());
@@ -113,7 +116,8 @@ public abstract class BaseIntegrationTest {
         Invoice invoice = new Invoice();
         invoice.set_id(new ObjectId());
         invoice.setCustomer(customer);
-        invoice.setAmount(faker.number().randomDouble(2, 100, 10000));
+        invoice.setAmount(BigDecimal.valueOf(faker.number().randomDouble(2, 100, 10000))
+                .setScale(2, RoundingMode.HALF_UP));
         invoice.setDate(LocalDate.now());
         invoice.setStatus(status);
         invoice.setAudit(createActiveAudit());
@@ -141,7 +145,8 @@ public abstract class BaseIntegrationTest {
         revenue.set_id(new ObjectId());
         revenue.setMonth(Month.of(faker.number().numberBetween(1, 12)));
         revenue.setYear(2024);
-        revenue.setRevenue(faker.number().randomDouble(2, 1000, 100000));
+        revenue.setRevenue(BigDecimal.valueOf(faker.number().randomDouble(2, 1000, 100000))
+                .setScale(2, RoundingMode.HALF_UP));
         revenue.setAudit(createActiveAudit());
         return revenueRepository.save(revenue);
     }
