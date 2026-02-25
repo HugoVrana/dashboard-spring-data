@@ -20,9 +20,11 @@ public class CustomerService implements ICustomerService {
         return customersRepository.findByAudit_DeletedAtIsNull();
     }
 
-    public Optional<Customer> getCustomer(ObjectId id){
+    public Optional<Customer> getCustomer(ObjectId id) {
         return customersRepository.findBy_idEqualsAndAudit_DeletedAtIsNull(id);
     }
 
-    public Long getCount() {return (long) customersRepository.countByAudit_DeletedAtIsNull();}
+    public Long getCount() {
+        return (long) customersRepository.countByAudit_DeletedAtIsNull();
+    }
 }

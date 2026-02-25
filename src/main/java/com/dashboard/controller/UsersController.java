@@ -15,7 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +40,7 @@ public class UsersController {
     public ResponseEntity<List<UserRead>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserRead> userReads = new ArrayList<>();
-        for(User user : users) {
+        for (User user : users) {
             UserRead userRead = userMapper.toRead(user);
             userReads.add(userRead);
         }
@@ -90,7 +96,7 @@ public class UsersController {
         PageRead<UserRead> pageRead = new PageRead<>();
         List<User> content = users.stream().toList();
         List<UserRead> userReads = new ArrayList<>();
-        for(User user : content) {
+        for (User user : content) {
             UserRead userRead = userMapper.toRead(user);
             userReads.add(userRead);
         }

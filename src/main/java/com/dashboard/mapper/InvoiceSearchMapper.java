@@ -21,7 +21,7 @@ public class InvoiceSearchMapper implements IInvoiceSearchMapper {
         customerRead.setId(doc.getCustomerId().toHexString());
         customerRead.setName(doc.getCustomerName());
         customerRead.setEmail(doc.getCustomerEmail());
-        customerRead.setImage_url(doc.getCustomerImageUrl());
+        customerRead.setImageUrl(doc.getCustomerImageUrl());
 
         invoiceRead.setCustomer(customerRead);
 

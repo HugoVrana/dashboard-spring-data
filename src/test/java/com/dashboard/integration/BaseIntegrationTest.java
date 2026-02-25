@@ -87,7 +87,7 @@ public abstract class BaseIntegrationTest {
         customer.set_id(new ObjectId());
         customer.setName(faker.name().fullName());
         customer.setEmail(faker.internet().emailAddress());
-        customer.setImage_url(faker.internet().url());
+        customer.setImageUrl(faker.internet().url());
         customer.setAudit(createActiveAudit());
         return customersRepository.save(customer);
     }

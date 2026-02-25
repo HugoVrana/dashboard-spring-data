@@ -36,7 +36,7 @@ public abstract class BaseCustomerServiceTest {
         testCustomer.set_id(testCustomerId);
         testCustomer.setName("Acme Corp");
         testCustomer.setEmail("contact@acme.com");
-        testCustomer.setImage_url("https://example.com/image.png");
+        testCustomer.setImageUrl("https://example.com/image.png");
         testCustomer.setAudit(new Audit());
     }
 }
