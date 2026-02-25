@@ -24,5 +24,5 @@ public class InvoiceCreate {
             regexp = "^[a-fA-F0-9]{24}$",
             message = "customer_id must be a 24-char hex ObjectId"
     )
-    private String customer_id;
+    private String customerId;
 }

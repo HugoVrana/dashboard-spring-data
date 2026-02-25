@@ -35,7 +35,7 @@ public class UserService implements IUserService {
         if (rawTerm == null || rawTerm.isEmpty()) {
             long count = userRepository.count();
 
-            if (pageable.isUnpaged()){
+            if (pageable.isUnpaged()) {
                 List<User> users = userRepository.queryByAudit_DeletedAtIsNull();
                 return new PageImpl<>(users, pageable, count);
             }

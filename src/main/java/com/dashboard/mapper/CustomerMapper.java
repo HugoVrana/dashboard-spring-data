@@ -13,7 +13,7 @@ public class CustomerMapper implements ICustomerMapper {
         customerDto.setId(customer.get_id().toHexString());
         customerDto.setName(customer.getName());
         customerDto.setEmail(customer.getEmail());
-        customerDto.setImage_url(customer.getImage_url());
+        customerDto.setImageUrl(customer.getImageUrl());
         return customerDto;
     }
 }

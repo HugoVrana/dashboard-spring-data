@@ -13,7 +13,11 @@ import com.dashboard.model.ActivityEventType;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.repository.IInvoiceRepository;
-import com.dashboard.service.interfaces.*;
+import com.dashboard.service.interfaces.IActivityFeedService;
+import com.dashboard.service.interfaces.ICustomerService;
+import com.dashboard.service.interfaces.IInvoiceSearchService;
+import com.dashboard.service.interfaces.IInvoiceService;
+import com.dashboard.service.interfaces.IRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -29,7 +33,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
@@ -48,7 +58,7 @@ public class InvoiceService implements IInvoiceService {
         return invoiceRepository.findByAudit_DeletedAtIsNull();
     }
 
-    public  List<Invoice> getInvoicesByStatus(String status){
+    public List<Invoice> getInvoicesByStatus(String status) {
         return invoiceRepository.findByStatusAndAudit_DeletedAtIsNull(status);
     }
 
@@ -62,108 +72,101 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public Page<Invoice> searchInvoices(String rawTerm, Pageable pageable) {
-        // Empty search — return all non-deleted invoices
         if (rawTerm == null || rawTerm.trim().isEmpty()) {
-            Query q = new Query()
-                    .addCriteria(Criteria.where("audit.deletedAt").is(null))
-                    .with(pageable);
-
-            List<Invoice> results = mongoTemplate.find(q, Invoice.class);
-            long count = mongoTemplate.count(Query.query(Criteria.where("audit.deletedAt").is(null)), Invoice.class);
-            return new PageImpl<>(results, pageable, count);
+            return searchAllInvoices(pageable);
         }
 
         String term = rawTerm.trim();
 
-        // If it's a valid ObjectId, search by ID directly
         if (ObjectId.isValid(term)) {
-            Query q = new Query()
-                    .addCriteria(new Criteria().orOperator(
-                            Criteria.where("_id").is(new ObjectId(term)),
-                            Criteria.where("customer.$id").is(new ObjectId(term))
-                    ))
-                    .addCriteria(Criteria.where("audit.deletedAt").is(null));
-
-            List<Invoice> results = mongoTemplate.find(q, Invoice.class);
-            return new PageImpl<>(results, pageable, results.size());
+            return searchByObjectId(term, pageable);
         }
 
-        // Use $lookup + regex for text search (no Atlas Search with DBRef)
+        return searchByText(term, pageable);
+    }
+
+    private Page<Invoice> searchAllInvoices(Pageable pageable) {
+        Query q = new Query()
+                .addCriteria(Criteria.where("audit.deletedAt").is(null))
+                .with(pageable);
+        List<Invoice> results = mongoTemplate.find(q, Invoice.class);
+        long count = mongoTemplate.count(Query.query(Criteria.where("audit.deletedAt").is(null)), Invoice.class);
+        return new PageImpl<>(results, pageable, count);
+    }
+
+    private Page<Invoice> searchByObjectId(String term, Pageable pageable) {
+        Query q = new Query()
+                .addCriteria(new Criteria().orOperator(
+                        Criteria.where("_id").is(new ObjectId(term)),
+                        Criteria.where("customer.$id").is(new ObjectId(term))
+                ))
+                .addCriteria(Criteria.where("audit.deletedAt").is(null));
+        List<Invoice> results = mongoTemplate.find(q, Invoice.class);
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    private Page<Invoice> searchByText(String term, Pageable pageable) {
+        List<AggregationOperation> operations = buildTextSearchAggregation(term, pageable);
+        Aggregation aggregation = Aggregation.newAggregation(operations);
+
+        Document result = mongoTemplate.aggregate(aggregation, "invoices", Document.class)
+                .getUniqueMappedResult();
+
+        return parseAggregationResult(result, pageable);
+    }
+
+    private List<AggregationOperation> buildTextSearchAggregation(String term, Pageable pageable) {
         List<AggregationOperation> operations = new ArrayList<>();
-
-        // First: filter out soft-deleted invoices (do this early to reduce data)
         operations.add(Aggregation.match(Criteria.where("audit.deletedAt").is(null)));
-
-        // $lookup to join customer data
         operations.add(context -> new Document("$lookup", new Document()
                 .append("from", "customers")
                 .append("localField", "customer.$id")
                 .append("foreignField", "_id")
-                .append("as", "customerData")
-        ));
-
-        // Unwind the customer array
+                .append("as", "customerData")));
         operations.add(Aggregation.unwind("customerData"));
-
-        // Filter soft-deleted customers
         operations.add(Aggregation.match(Criteria.where("customerData.audit.deletedAt").is(null)));
+        operations.add(Aggregation.match(new Criteria().orOperator(
+                buildSearchCriteria(term).toArray(new Criteria[0]))));
+        operations.add(context -> buildFacetStage(pageable));
+        return operations;
+    }
 
-        // Build search criteria
+    private List<Criteria> buildSearchCriteria(String term) {
         String regex = Pattern.quote(term);
         List<Criteria> searchCriteria = new ArrayList<>();
-
-        // Text fields - case insensitive regex
         searchCriteria.add(Criteria.where("status").regex(regex, "i"));
         searchCriteria.add(Criteria.where("customerData.name").regex(regex, "i"));
         searchCriteria.add(Criteria.where("customerData.email").regex(regex, "i"));
-
-        // Numeric search for amount
         try {
             double numericValue = Double.parseDouble(term);
             searchCriteria.add(Criteria.where("amount").is(numericValue));
         } catch (NumberFormatException ignored) {
             // Not a number, skip
         }
+        return searchCriteria;
+    }
 
-        operations.add(Aggregation.match(new Criteria().orOperator(
-                searchCriteria.toArray(new Criteria[0])
-        )));
-
-        // Facet for pagination + total count
+    private Document buildFacetStage(Pageable pageable) {
         int skip = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
         int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
+        return new Document("$facet", new Document()
+                .append("results", List.of(new Document("$skip", skip), new Document("$limit", limit)))
+                .append("totalCount", List.of(new Document("$count", "count"))));
+    }
 
-        Document facetStage = new Document("$facet", new Document()
-                .append("results", List.of(
-                        new Document("$skip", skip),
-                        new Document("$limit", limit)
-                ))
-                .append("totalCount", List.of(
-                        new Document("$count", "count")
-                ))
-        );
-        operations.add(context -> facetStage);
-
-        Aggregation aggregation = Aggregation.newAggregation(operations);
-
-        Document result = mongoTemplate.aggregate(aggregation, "invoices", Document.class)
-                .getUniqueMappedResult();
-
+    private Page<Invoice> parseAggregationResult(Document result, Pageable pageable) {
         List<Invoice> invoices = new ArrayList<>();
         long total = 0;
-
         if (result != null) {
             List<Document> resultDocs = result.getList("results", Document.class);
             for (Document doc : resultDocs) {
                 invoices.add(mongoTemplate.getConverter().read(Invoice.class, doc));
             }
-
             List<Document> countDoc = result.getList("totalCount", Document.class);
             if (!countDoc.isEmpty()) {
                 total = countDoc.getFirst().getInteger("count");
             }
         }
-
         return new PageImpl<>(invoices, pageable, total);
     }
 
@@ -172,7 +175,7 @@ public class InvoiceService implements IInvoiceService {
     }
 
     public InvoiceRead createInvoice(InvoiceCreate invoiceCreate) {
-        ObjectId customerId = new ObjectId(invoiceCreate.getCustomer_id());
+        ObjectId customerId = new ObjectId(invoiceCreate.getCustomerId());
         Customer customer = customerService.getCustomer(customerId)
                 .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
 

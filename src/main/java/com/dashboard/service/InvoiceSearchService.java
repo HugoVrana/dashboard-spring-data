@@ -124,7 +124,7 @@ public class InvoiceSearchService implements IInvoiceSearchService {
         doc.setCustomerId(customer.get_id());
         doc.setCustomerName(customer.getName());
         doc.setCustomerEmail(customer.getEmail());
-        doc.setCustomerImageUrl(customer.getImage_url());
+        doc.setCustomerImageUrl(customer.getImageUrl());
 
         // Update tracking
         doc.setLastSyncedAt(Instant.now());
@@ -143,7 +143,7 @@ public class InvoiceSearchService implements IInvoiceSearchService {
         Update update = new Update()
                 .set("customerName", customer.getName())
                 .set("customerEmail", customer.getEmail())
-                .set("customerImageUrl", customer.getImage_url())
+                .set("customerImageUrl", customer.getImageUrl())
                 .set("lastSyncedAt", Instant.now());
 
         mongoTemplate.updateMulti(query, update, InvoiceSearchDocument.class);

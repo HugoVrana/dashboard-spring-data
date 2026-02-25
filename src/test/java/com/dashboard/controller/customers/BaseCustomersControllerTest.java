@@ -70,7 +70,7 @@ public abstract class BaseCustomersControllerTest {
         testCustomer.set_id(testCustomerId);
         testCustomer.setName(testCustomerName);
         testCustomer.setEmail(testCustomerEmail);
-        testCustomer.setImage_url(testImageUrl);
+        testCustomer.setImageUrl(testImageUrl);
 
         Audit audit = new Audit();
         audit.setCreatedAt(Instant.now());
@@ -84,7 +84,7 @@ public abstract class BaseCustomersControllerTest {
         customerRead.setId(testCustomerId.toHexString());
         customerRead.setName(testCustomerName);
         customerRead.setEmail(testCustomerEmail);
-        customerRead.setImage_url(testImageUrl);
+        customerRead.setImageUrl(testImageUrl);
         return customerRead;
     }
 }
