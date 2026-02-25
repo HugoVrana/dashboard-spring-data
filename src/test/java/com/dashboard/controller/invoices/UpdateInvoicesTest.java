@@ -13,6 +13,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,7 +28,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
         Invoice testInvoice = createTestInvoice();
         InvoiceRead testInvoiceRead = createTestInvoiceRead(testInvoice);
 
-        InvoiceUpdate invoiceUpdate = new InvoiceUpdate(testInvoiceId.toHexString(), "paid", 1500.0, testCustomerId.toHexString());
+        InvoiceUpdate invoiceUpdate = new InvoiceUpdate(testInvoiceId.toHexString(), "paid", new BigDecimal("1500.00"), testCustomerId.toHexString());
 
         when(invoiceService.updateInvoice(eq(testInvoiceId.toHexString()), any(InvoiceUpdate.class)))
                 .thenReturn(testInvoiceRead);
@@ -41,7 +43,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when invoice not found")
     void updateInvoice_Returns404WhenInvoiceNotFound() throws Exception {
-        InvoiceUpdate invoiceUpdate = new InvoiceUpdate(testInvoiceId.toHexString(), "paid", 1500.0, testCustomerId.toHexString());
+        InvoiceUpdate invoiceUpdate = new InvoiceUpdate(testInvoiceId.toHexString(), "paid", new BigDecimal("1500.00"), testCustomerId.toHexString());
 
         when(invoiceService.updateInvoice(eq(testInvoiceId.toHexString()), any(InvoiceUpdate.class)))
                 .thenThrow(new ResourceNotFoundException("Invoice not found"));
@@ -55,7 +57,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 404 when id is invalid")
     void updateInvoice_Returns404WhenIdInvalid() throws Exception {
-        InvoiceUpdate invoiceUpdate = new InvoiceUpdate("invalid-id", "paid", 1500.0, testCustomerId.toHexString());
+        InvoiceUpdate invoiceUpdate = new InvoiceUpdate("invalid-id", "paid", new BigDecimal("1500.00"), testCustomerId.toHexString());
 
         when(invoiceService.updateInvoice(eq("invalid-id"), any(InvoiceUpdate.class)))
                 .thenThrow(new ResourceNotFoundException("This id is invalid"));

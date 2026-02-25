@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
+import java.math.BigDecimal;
 import java.time.Month;
 
 @Data
@@ -25,7 +26,7 @@ public class Revenue {
     @Max(9999)
     private Integer year;
 
-    private Double revenue;
+    private BigDecimal revenue;
     
     private Audit audit;
 }

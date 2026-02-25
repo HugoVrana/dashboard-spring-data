@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import java.math.BigDecimal;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Invoice Endpoints")
@@ -52,7 +54,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("POST /invoices - correct grant allows access")
     void createInvoice_WithCorrectGrant_Returns201() throws Exception {
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 500.0, testCustomer.get_id().toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
 
         mockMvc.perform(post("/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-create"))
@@ -64,7 +66,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("POST /invoices - missing grant returns 403")
     void createInvoice_WithoutGrant_Returns403() throws Exception {
-        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", 500.0, testCustomer.get_id().toHexString());
+        InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
 
         mockMvc.perform(post("/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-read"))
@@ -79,7 +81,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
                 testInvoice.get_id().toHexString(),
                 "paid",
-                1500.0,
+                new BigDecimal("1500.00"),
                 testCustomer.get_id().toHexString()
         );
 
@@ -96,7 +98,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
                 testInvoice.get_id().toHexString(),
                 "paid",
-                1500.0,
+                new BigDecimal("1500.00"),
                 testCustomer.get_id().toHexString()
         );
 

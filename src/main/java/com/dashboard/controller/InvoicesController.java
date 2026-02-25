@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,19 +91,13 @@ public class InvoicesController {
 
     @GetMapping("/amount")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<Double> getInvoiceAmount(@RequestParam(required = false) String status) {
-        double amount;
-        if (status == null) {
-            amount = invoiceService.getAllInvoices()
-                    .stream()
-                    .mapToDouble(Invoice::getAmount)
-                    .sum();
-        } else {
-            amount = invoiceService.getInvoicesByStatus(status)
-                    .stream()
-                    .mapToDouble(Invoice::getAmount)
-                    .sum();
-        }
+    public ResponseEntity<BigDecimal> getInvoiceAmount(@RequestParam(required = false) String status) {
+        List<Invoice> invoices = (status == null)
+                ? invoiceService.getAllInvoices()
+                : invoiceService.getInvoicesByStatus(status);
+        BigDecimal amount = invoices.stream()
+                .map(Invoice::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseEntity.ok(amount);
     }
 

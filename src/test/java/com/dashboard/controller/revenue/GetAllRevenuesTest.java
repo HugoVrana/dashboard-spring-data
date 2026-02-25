@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
@@ -56,13 +57,13 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         secondRevenue.set_id(secondRevenueId);
         secondRevenue.setMonth(Month.FEBRUARY);
         secondRevenue.setYear(2024);
-        secondRevenue.setRevenue(6500.00);
+        secondRevenue.setRevenue(new BigDecimal("6500.00"));
         secondRevenue.setAudit(new Audit());
 
         RevenueRead secondRevenueRead = new RevenueRead();
         secondRevenueRead.setId(secondRevenueId.toHexString());
         secondRevenueRead.setMonth(Month.FEBRUARY.name());
-        secondRevenueRead.setRevenue(6500.00);
+        secondRevenueRead.setRevenue(new BigDecimal("6500.00"));
 
         List<Revenue> revenues = List.of(testRevenue, secondRevenue);
         when(revenueService.getAllRevenues()).thenReturn(revenues);

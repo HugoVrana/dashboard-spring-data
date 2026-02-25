@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class InvoiceSearchService implements IInvoiceSearchService {
 
         // Numeric search for amount
         try {
-            double numericValue = Double.parseDouble(term);
+            BigDecimal numericValue = new BigDecimal(term);
             searchCriteria.add(Criteria.where("amount").is(numericValue));
         } catch (NumberFormatException ignored) {
             // Not a number, skip

@@ -24,6 +24,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.dashboard.config.TestConfig;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Month;
 
 @Epic("Revenue")
@@ -57,14 +59,15 @@ public abstract class BaseRevenueControllerTest {
 
     protected Month testMonth;
     protected Integer testYear;
-    protected Double testRevenueAmount;
+    protected BigDecimal testRevenueAmount;
 
     @BeforeEach
     void setUpBase() {
         testRevenueId = new ObjectId();
         testMonth = Month.of(faker.number().numberBetween(1, 12));
         testYear = 2024;
-        testRevenueAmount = faker.number().randomDouble(2, 1000, 50000);
+        testRevenueAmount = BigDecimal.valueOf(faker.number().randomDouble(2, 1000, 50000))
+                .setScale(2, RoundingMode.HALF_UP);
 
         testRevenue = new Revenue();
         testRevenue.set_id(testRevenueId);

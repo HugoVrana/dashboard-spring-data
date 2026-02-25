@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -29,7 +30,7 @@ public class InvoiceSearchDocument {
     private ObjectId customerId;
 
     // Invoice fields
-    private Double amount;
+    private BigDecimal amount;
     private LocalDate date;
 
     @TextIndexed(weight = 2)
