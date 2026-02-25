@@ -73,6 +73,6 @@ public class RevenueE2ETest extends BaseIntegrationTest {
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].month").value(revenue.getMonth().name()))
-                .andExpect(jsonPath("$[0].revenue").value(revenue.getRevenue()));
+                .andExpect(jsonPath("$[0].revenue").value(revenue.getRevenue().doubleValue()));
     }
 }
