@@ -7,6 +7,9 @@ import com.dashboard.dataTransferObject.user.UserRead;
 import com.dashboard.mapper.interfaces.IUserMapper;
 import com.dashboard.model.entities.User;
 import com.dashboard.service.interfaces.IUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -28,13 +31,15 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/users")
+@Tag(name = "Users", description = "User management operations")
+@RequestMapping(value = "/users", produces = "application/json")
 @RequiredArgsConstructor
 public class UsersController {
 
     private final IUserService userService;
     private final IUserMapper userMapper;
 
+    @Operation(summary = "Get all users", description = "Retrieves a list of all users")
     @GetMapping("/")
     @PreAuthorize("hasAuthority('dashboard-users-read')")
     public ResponseEntity<List<UserRead>> getAllUsers() {
@@ -47,9 +52,10 @@ public class UsersController {
         return ResponseEntity.ok(userReads);
     }
 
+    @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-users-read')")
-    public ResponseEntity<UserRead> getUserById(@PathVariable("id") String id) {
+    public ResponseEntity<UserRead> getUserById(@Parameter(description = "User ID") @PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("Invalid id");
         }
@@ -65,9 +71,10 @@ public class UsersController {
         return ResponseEntity.ok(userRead);
     }
 
+    @Operation(summary = "Get user by email", description = "Retrieves a specific user by their email address")
     @GetMapping("/email/{email}")
     @PreAuthorize("hasAuthority('dashboard-users-read')")
-    public ResponseEntity<UserRead> getUserByEmail(@PathVariable("email") @Email String email) {
+    public ResponseEntity<UserRead> getUserByEmail(@Parameter(description = "User email address") @PathVariable("email") @Email String email) {
         Optional<User> optionalUser = userService.getUserByEmail(email);
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("User with email " + email + " not found");
@@ -77,6 +84,7 @@ public class UsersController {
         return ResponseEntity.ok(userRead);
     }
 
+    @Operation(summary = "Search users", description = "Searches users with pagination support")
     @PostMapping(value = "/search", consumes = "application/json")
     @PreAuthorize("hasAuthority('dashboard-users-create')")
     public ResponseEntity<PageRead<UserRead>> searchUsers(@RequestBody PageRequest pageRequest) {
