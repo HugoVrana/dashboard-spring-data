@@ -8,12 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RestController
 public class DashboardApplication {
-
-    @GetMapping("/")
-    public String home() {
-        return "Spring Dashboard is here!";
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(DashboardApplication.class, args);
     }
