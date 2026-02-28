@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtGrantsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ws/**", "/ws-sockjs/**", "/api/activity/test").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

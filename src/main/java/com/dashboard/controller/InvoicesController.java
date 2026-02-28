@@ -11,6 +11,9 @@ import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.InvoiceSearchDocument;
 import com.dashboard.service.interfaces.IInvoiceSearchService;
 import com.dashboard.service.interfaces.IInvoiceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +38,8 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/invoices")
+@Tag(name = "Invoices", description = "Invoice management operations")
+@RequestMapping(value = "/invoices", produces = "application/json")
 @RequiredArgsConstructor
 public class InvoicesController {
 
@@ -44,6 +48,7 @@ public class InvoicesController {
     private final IInvoiceMapper invoiceMapper;
     private final IInvoiceSearchMapper invoiceSearchMapper;
 
+    @Operation(summary = "Get all invoices", description = "Retrieves a list of all invoices")
     @GetMapping("/")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<List<InvoiceRead>> getAllInvoices() {
@@ -53,16 +58,20 @@ public class InvoicesController {
         return ResponseEntity.ok(invoiceReads);
     }
 
+    @Operation(summary = "Get invoice by ID", description = "Retrieves a specific invoice by its ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<InvoiceRead> getInvoiceById(@PathVariable("id") String id) {
+    public ResponseEntity<InvoiceRead> getInvoiceById(@Parameter(description = "Invoice ID") @PathVariable("id") String id) {
         Invoice invoice = invoiceService.getInvoiceById(id);
         return ResponseEntity.ok(invoiceMapper.toReadWithCustomer(invoice));
     }
 
+    @Operation(summary = "Get latest invoices", description = "Retrieves the most recent invoices with optional range parameters")
     @GetMapping("/latest")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<List<InvoiceRead>> getLatestInvoice(@RequestParam(required = false) Integer indexFrom, @RequestParam(required = false) Integer indexTo) {
+    public ResponseEntity<List<InvoiceRead>> getLatestInvoice(
+            @Parameter(description = "Starting index") @RequestParam(required = false) Integer indexFrom,
+            @Parameter(description = "Ending index") @RequestParam(required = false) Integer indexTo) {
         if (indexFrom != null && indexTo != null && indexFrom > indexTo) {
             throw new IllegalArgumentException("indexFrom must be less or equal to indexTo");
         }
@@ -76,9 +85,10 @@ public class InvoicesController {
         return ResponseEntity.ok(invoiceReads);
     }
 
+    @Operation(summary = "Get invoice count", description = "Returns the total number of invoices, optionally filtered by status")
     @GetMapping("/count")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<Integer> getInvoiceCount(@RequestParam(required = false) String status) {
+    public ResponseEntity<Integer> getInvoiceCount(@Parameter(description = "Filter by invoice status") @RequestParam(required = false) String status) {
         List<Invoice> invoices;
         if (status == null) {
             invoices = invoiceService.getAllInvoices();
@@ -89,9 +99,10 @@ public class InvoicesController {
         return ResponseEntity.ok(count);
     }
 
+    @Operation(summary = "Get total invoice amount", description = "Returns the sum of all invoice amounts, optionally filtered by status")
     @GetMapping("/amount")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<BigDecimal> getInvoiceAmount(@RequestParam(required = false) String status) {
+    public ResponseEntity<BigDecimal> getInvoiceAmount(@Parameter(description = "Filter by invoice status") @RequestParam(required = false) String status) {
         List<Invoice> invoices = (status == null)
                 ? invoiceService.getAllInvoices()
                 : invoiceService.getInvoicesByStatus(status);
@@ -101,9 +112,12 @@ public class InvoicesController {
         return ResponseEntity.ok(amount);
     }
 
+    @Operation(summary = "Get page count", description = "Returns the total number of pages for search results")
     @GetMapping("/pages")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
-    public ResponseEntity<Integer> getPages(@RequestParam(required = false) String searchTerm, @RequestParam(required = false) Integer size) {
+    public ResponseEntity<Integer> getPages(
+            @Parameter(description = "Search term to filter invoices") @RequestParam(required = false) String searchTerm,
+            @Parameter(description = "Page size") @RequestParam(required = false) Integer size) {
         if (size == null || size < 1) {
             size = 15;
         }
@@ -112,6 +126,7 @@ public class InvoicesController {
         return ResponseEntity.ok(pages);
     }
 
+    @Operation(summary = "Search invoices", description = "Searches invoices with pagination support")
     @PostMapping(value = "/search", consumes = "application/json")
     @PreAuthorize("hasAuthority('dashboard-invoices-read')")
     public ResponseEntity<PageRead<InvoiceRead>> searchInvoices(@Valid @RequestBody PageRequest pageRequest) {
@@ -147,6 +162,7 @@ public class InvoicesController {
         return ResponseEntity.ok(pageRead);
     }
 
+    @Operation(summary = "Create invoice", description = "Creates a new invoice")
     @PostMapping()
     @PreAuthorize("hasAuthority('dashboard-invoices-create')")
     public ResponseEntity<InvoiceRead> createInvoice(@Valid @RequestBody InvoiceCreate invoiceCreate) {
@@ -155,17 +171,19 @@ public class InvoicesController {
         return ResponseEntity.created(location).body(invoiceRead);
     }
 
+    @Operation(summary = "Update invoice", description = "Updates an existing invoice")
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-update')")
-    public ResponseEntity<InvoiceRead> updateInvoice(@PathVariable("id") String id, @Valid @RequestBody InvoiceUpdate invoiceUpdate) {
+    public ResponseEntity<InvoiceRead> updateInvoice(@Parameter(description = "Invoice ID") @PathVariable("id") String id, @Valid @RequestBody InvoiceUpdate invoiceUpdate) {
         InvoiceRead invoiceRead = invoiceService.updateInvoice(id, invoiceUpdate);
         URI location = URI.create("/invoices/" + invoiceRead.getId());
         return ResponseEntity.created(location).body(invoiceRead);
     }
 
+    @Operation(summary = "Delete invoice", description = "Soft deletes an invoice by its ID")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-invoices-delete')")
-    public ResponseEntity<Integer> deleteInvoice(@PathVariable("id") String id) {
+    public ResponseEntity<Integer> deleteInvoice(@Parameter(description = "Invoice ID") @PathVariable("id") String id) {
         invoiceService.deleteInvoice(id);
         return ResponseEntity.ok(1);
     }

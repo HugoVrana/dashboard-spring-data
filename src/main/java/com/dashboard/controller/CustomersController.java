@@ -5,6 +5,9 @@ import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.service.interfaces.ICustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +23,15 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/customers")
+@Tag(name = "Customers", description = "Customer management operations")
+@RequestMapping(value = "/customers", produces = "application/json")
 @RequiredArgsConstructor
 public class CustomersController {
 
     private final ICustomerService customersService;
     private final ICustomerMapper customerMapper;
 
+    @Operation(summary = "Get all customers", description = "Retrieves a list of all customers")
     @GetMapping("/")
     @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<List<CustomerRead>> getAllCustomers() {
@@ -39,9 +44,10 @@ public class CustomersController {
         return ResponseEntity.ok(customerDtos);
     }
 
+    @Operation(summary = "Get customer by ID", description = "Retrieves a specific customer by their ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('dashboard-customers-read')")
-    public ResponseEntity<CustomerRead> getCustomerById(@PathVariable("id") String id) {
+    public ResponseEntity<CustomerRead> getCustomerById(@Parameter(description = "Customer ID") @PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
         }
@@ -57,6 +63,7 @@ public class CustomersController {
         return ResponseEntity.ok(customerDto);
     }
 
+    @Operation(summary = "Get customer count", description = "Returns the total number of customers")
     @GetMapping("/count")
     @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<Long> getCustomerCount() {
