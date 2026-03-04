@@ -86,6 +86,70 @@ public class InvoiceService implements IInvoiceService {
         return searchByText(term, pageable);
     }
 
+    public Invoice getInvoiceById(String id) {
+        return getInvoiceOrThrow(id);
+    }
+
+    public InvoiceRead createInvoice(InvoiceCreate invoiceCreate) {
+        ObjectId customerId = new ObjectId(invoiceCreate.getCustomerId());
+        Customer customer = customerService.getCustomer(customerId)
+                .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
+
+        Instant now = Instant.now();
+        Audit audit = new Audit();
+        audit.setCreatedAt(now);
+        audit.setUpdatedAt(now);
+
+        Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
+        invoice.setDate(LocalDate.now());
+        invoice.setAudit(audit);
+        invoice = insertInvoice(invoice);
+
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount());
+        publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice, Map.of(
+                "amount", invoice.getAmount(),
+                "status", invoice.getStatus()
+        ));
+
+        return invoiceMapper.toReadWithCustomer(invoice);
+    }
+
+    public InvoiceRead updateInvoice(String id, InvoiceUpdate invoiceUpdate) {
+        Invoice existingInvoice = getInvoiceOrThrow(id);
+
+        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
+        Customer customer = customerService.getCustomer(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer with id " + customerId + " not found"));
+
+        Audit audit = existingInvoice.getAudit();
+        audit.setUpdatedAt(Instant.now());
+
+        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
+        invoice.setDate(existingInvoice.getDate());
+        invoice.setAudit(audit);
+        invoice = saveInvoice(invoice);
+
+        publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice, Map.of(
+                "amount", invoice.getAmount(),
+                "status", invoice.getStatus()
+        ));
+
+        return invoiceMapper.toReadWithCustomer(invoice);
+    }
+
+    public void deleteInvoice(String id) {
+        Invoice invoice = getInvoiceOrThrow(id);
+
+        Audit audit = invoice.getAudit();
+        audit.setDeletedAt(Instant.now());
+        invoice.setAudit(audit);
+        saveInvoice(invoice);
+        invoiceSearchService.markInvoiceDeleted(invoice.get_id());
+
+        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount().negate());
+        publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
+    }
+
     private Page<Invoice> searchAllInvoices(Pageable pageable) {
         Query q = new Query()
                 .addCriteria(Criteria.where("audit.deletedAt").is(null))
@@ -169,70 +233,6 @@ public class InvoiceService implements IInvoiceService {
             }
         }
         return new PageImpl<>(invoices, pageable, total);
-    }
-
-    public Invoice getInvoiceById(String id) {
-        return getInvoiceOrThrow(id);
-    }
-
-    public InvoiceRead createInvoice(InvoiceCreate invoiceCreate) {
-        ObjectId customerId = new ObjectId(invoiceCreate.getCustomerId());
-        Customer customer = customerService.getCustomer(customerId)
-                .orElseThrow(() -> new NotFoundException("The provided customer id does not exist"));
-
-        Instant now = Instant.now();
-        Audit audit = new Audit();
-        audit.setCreatedAt(now);
-        audit.setUpdatedAt(now);
-
-        Invoice invoice = invoiceMapper.toModel(invoiceCreate, customer);
-        invoice.setDate(LocalDate.now());
-        invoice.setAudit(audit);
-        invoice = insertInvoice(invoice);
-
-        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount());
-        publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice, Map.of(
-                "amount", invoice.getAmount(),
-                "status", invoice.getStatus()
-        ));
-
-        return invoiceMapper.toReadWithCustomer(invoice);
-    }
-
-    public InvoiceRead updateInvoice(String id, InvoiceUpdate invoiceUpdate) {
-        Invoice existingInvoice = getInvoiceOrThrow(id);
-
-        ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
-        Customer customer = customerService.getCustomer(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with id " + customerId + " not found"));
-
-        Audit audit = existingInvoice.getAudit();
-        audit.setUpdatedAt(Instant.now());
-
-        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
-        invoice.setDate(existingInvoice.getDate());
-        invoice.setAudit(audit);
-        invoice = saveInvoice(invoice);
-
-        publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice, Map.of(
-                "amount", invoice.getAmount(),
-                "status", invoice.getStatus()
-        ));
-
-        return invoiceMapper.toReadWithCustomer(invoice);
-    }
-
-    public void deleteInvoice(String id) {
-        Invoice invoice = getInvoiceOrThrow(id);
-
-        Audit audit = invoice.getAudit();
-        audit.setDeletedAt(Instant.now());
-        invoice.setAudit(audit);
-        saveInvoice(invoice);
-        invoiceSearchService.markInvoiceDeleted(invoice.get_id());
-
-        revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount().negate());
-        publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
     }
 
     private Invoice insertInvoice(Invoice invoice) {

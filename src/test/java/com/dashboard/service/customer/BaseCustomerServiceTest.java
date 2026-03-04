@@ -2,7 +2,7 @@ package com.dashboard.service.customer;
 
 import com.dashboard.common.model.Audit;
 import com.dashboard.model.entities.Customer;
-import com.dashboard.repository.ICustomersRepository;
+import com.dashboard.repository.ICustomerRepository;
 import com.dashboard.service.CustomerService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public abstract class BaseCustomerServiceTest {
 
     @Mock
-    protected ICustomersRepository customersRepository;
+    protected ICustomerRepository customersRepository;
 
     @InjectMocks
     protected CustomerService customerService;
@@ -36,7 +36,6 @@ public abstract class BaseCustomerServiceTest {
         testCustomer.set_id(testCustomerId);
         testCustomer.setName("Acme Corp");
         testCustomer.setEmail("contact@acme.com");
-        testCustomer.setImageUrl("https://example.com/image.png");
         testCustomer.setAudit(new Audit());
     }
 }

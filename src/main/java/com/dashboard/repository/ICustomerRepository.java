@@ -6,10 +6,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ICustomersRepository extends MongoRepository<Customer, ObjectId> {
+public interface ICustomerRepository extends MongoRepository<Customer, ObjectId> {
     List<Customer> findByAudit_DeletedAtIsNull();
 
     Integer countByAudit_DeletedAtIsNull();
 
     Optional<Customer> findBy_idEqualsAndAudit_DeletedAtIsNull(ObjectId id);
+
+    Optional<Customer> getCustomerByEmail(String email);
 }

@@ -1,5 +1,6 @@
 package com.dashboard.mapper;
 
+import com.dashboard.dataTransferObject.customer.CustomerCreate;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;
@@ -13,7 +14,14 @@ public class CustomerMapper implements ICustomerMapper {
         customerDto.setId(customer.get_id().toHexString());
         customerDto.setName(customer.getName());
         customerDto.setEmail(customer.getEmail());
-        customerDto.setImageUrl(customer.getImageUrl());
         return customerDto;
+    }
+
+    @Override
+    public Customer toModel(CustomerCreate customerCreate) {
+        Customer customer = new Customer();
+        customer.setName(customerCreate.getName());
+        customer.setEmail(customerCreate.getEmail());
+        return customer;
     }
 }

@@ -41,6 +41,48 @@ When running locally, OpenAPI documentation is available at:
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 
+## API Endpoints
+
+All endpoints require JWT authentication with appropriate grants.
+
+### Customers `/customers`
+
+| Method | Endpoint | Description | Required Grant |
+|--------|----------|-------------|----------------|
+| GET | `/customers/` | List all customers | `dashboard-customers-read` |
+| GET | `/customers/{id}` | Get customer by ID | `dashboard-customers-read` |
+| GET | `/customers/count` | Get customer count | `dashboard-customers-read` |
+
+### Invoices `/invoices`
+
+| Method | Endpoint | Description | Required Grant |
+|--------|----------|-------------|----------------|
+| GET | `/invoices/` | List all invoices | `dashboard-invoices-read` |
+| GET | `/invoices/{id}` | Get invoice by ID | `dashboard-invoices-read` |
+| GET | `/invoices/latest` | Get latest invoices (optional `indexFrom`/`indexTo` params) | `dashboard-invoices-read` |
+| GET | `/invoices/count` | Get invoice count (optional `status` filter) | `dashboard-invoices-read` |
+| GET | `/invoices/amount` | Get total invoice amount (optional `status` filter) | `dashboard-invoices-read` |
+| GET | `/invoices/pages` | Get page count for search | `dashboard-invoices-read` |
+| POST | `/invoices/search` | Search invoices with pagination | `dashboard-invoices-read` |
+| POST | `/invoices` | Create invoice | `dashboard-invoices-create` |
+| PUT | `/invoices/{id}` | Update invoice | `dashboard-invoices-update` |
+| DELETE | `/invoices/{id}` | Soft delete invoice | `dashboard-invoices-delete` |
+
+### Users `/users`
+
+| Method | Endpoint | Description | Required Grant |
+|--------|----------|-------------|----------------|
+| GET | `/users/` | List all users | `dashboard-users-read` |
+| GET | `/users/{id}` | Get user by ID | `dashboard-users-read` |
+| GET | `/users/email/{email}` | Get user by email | `dashboard-users-read` |
+| POST | `/users/search` | Search users with pagination | `dashboard-users-create` |
+
+### Revenues `/revenues`
+
+| Method | Endpoint | Description | Required Grant |
+|--------|----------|-------------|----------------|
+| GET | `/revenues/` | List all revenues | `dashboard-revenue-read` |
+
 ## Project Structure
 
 ```

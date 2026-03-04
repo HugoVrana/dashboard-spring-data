@@ -6,7 +6,7 @@ import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.Revenue;
 import com.dashboard.model.entities.User;
-import com.dashboard.repository.ICustomersRepository;
+import com.dashboard.repository.ICustomerRepository;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.repository.IInvoiceSearchRepository;
 import com.dashboard.repository.IRevenueRepository;
@@ -58,7 +58,7 @@ public abstract class BaseIntegrationTest {
     protected ObjectMapper objectMapper;
 
     @Autowired
-    protected ICustomersRepository customersRepository;
+    protected ICustomerRepository customersRepository;
 
     @Autowired
     protected IInvoiceRepository invoiceRepository;
@@ -89,7 +89,6 @@ public abstract class BaseIntegrationTest {
         customer.set_id(new ObjectId());
         customer.setName(faker.name().fullName());
         customer.setEmail(faker.internet().emailAddress());
-        customer.setImageUrl(faker.internet().url());
         customer.setAudit(createActiveAudit());
         return customersRepository.save(customer);
     }
