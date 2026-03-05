@@ -1,5 +1,6 @@
 package com.dashboard.dataTransferObject.revenue;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import java.math.BigDecimal;
 
@@ -7,5 +8,6 @@ import java.math.BigDecimal;
 public class RevenueRead {
     private String id;
     private String month;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     private BigDecimal revenue;
 }
