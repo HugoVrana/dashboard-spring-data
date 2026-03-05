@@ -4,14 +4,14 @@ import com.dashboard.authentication.GrantsAuthentication;
 import com.dashboard.common.model.ActivityEvent;
 import com.dashboard.common.model.Audit;
 import com.dashboard.common.model.exception.ConflictException;
+import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerCreate;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.customer.CustomerUpdate;
 import com.dashboard.environment.R2Properties;
+import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.ActivityEventType;
 import com.dashboard.model.entities.Customer;
-import com.dashboard.common.model.exception.ResourceNotFoundException;
-import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.repository.ICustomerRepository;
 import com.dashboard.service.interfaces.IActivityFeedService;
 import com.dashboard.service.interfaces.ICustomerService;
@@ -19,12 +19,16 @@ import com.dashboard.service.interfaces.IR2Service;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Scope("singleton")
