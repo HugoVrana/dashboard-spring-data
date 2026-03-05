@@ -55,6 +55,7 @@ public abstract class BaseCustomersControllerTest {
     protected ObjectId testCustomerId;
     protected String testCustomerName;
     protected String testCustomerEmail;
+    protected ObjectId testImageId;
     protected String testImageUrl;
 
     @BeforeEach
@@ -62,6 +63,7 @@ public abstract class BaseCustomersControllerTest {
         testCustomerId = new ObjectId();
         testCustomerName = faker.name().fullName();
         testCustomerEmail = faker.internet().emailAddress();
+        testImageId = new ObjectId();
         testImageUrl = faker.internet().url();
     }
 
@@ -70,7 +72,7 @@ public abstract class BaseCustomersControllerTest {
         testCustomer.set_id(testCustomerId);
         testCustomer.setName(testCustomerName);
         testCustomer.setEmail(testCustomerEmail);
-        testCustomer.setImageUrl(testImageUrl);
+        testCustomer.setImageId(testImageId);
 
         Audit audit = new Audit();
         audit.setCreatedAt(Instant.now());

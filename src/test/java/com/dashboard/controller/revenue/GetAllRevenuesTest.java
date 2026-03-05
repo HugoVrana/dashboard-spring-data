@@ -34,7 +34,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testRevenueId.toHexString()))
                 .andExpect(jsonPath("$[0].month").value(testMonth.name()))
-                .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount));
+                .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount.doubleValue()));
     }
 
     @Test
@@ -76,8 +76,8 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].month").value(testMonth.name()))
-                .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount))
+                .andExpect(jsonPath("$[0].revenue").value(testRevenueAmount.doubleValue()))
                 .andExpect(jsonPath("$[1].month").value("FEBRUARY"))
-                .andExpect(jsonPath("$[1].revenue").value(6500.00));
+                .andExpect(jsonPath("$[1].revenue").value(6500.0));
     }
 }

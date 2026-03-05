@@ -96,7 +96,7 @@ public abstract class BaseInvoicesControllerTest {
         customer.set_id(testCustomerId);
         customer.setName(faker.name().fullName());
         customer.setEmail(faker.internet().emailAddress());
-        customer.setImageUrl(faker.internet().url());
+        customer.setImageId(new ObjectId());
         customer.setAudit(audit);
 
         Invoice invoice = new Invoice();
@@ -121,7 +121,7 @@ public abstract class BaseInvoicesControllerTest {
         customerRead.setId(invoice.getCustomer().get_id().toHexString());
         customerRead.setName(invoice.getCustomer().getName());
         customerRead.setEmail(invoice.getCustomer().getEmail());
-        customerRead.setImageUrl(invoice.getCustomer().getImageUrl());
+        customerRead.setImageUrl("https://example.com/test-image.png");
         invoiceRead.setCustomer(customerRead);
 
         return invoiceRead;
@@ -137,7 +137,7 @@ public abstract class BaseInvoicesControllerTest {
         doc.setStatus(invoice.getStatus());
         doc.setCustomerName(invoice.getCustomer().getName());
         doc.setCustomerEmail(invoice.getCustomer().getEmail());
-        doc.setCustomerImageUrl(invoice.getCustomer().getImageUrl());
+        doc.setCustomerImageUrl("https://example.com/test-image.png");
         return doc;
     }
 }
