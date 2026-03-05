@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.URL;
 import org.jetbrains.annotations.NotNull;
 
 @Data
@@ -20,7 +19,4 @@ public class CustomerCreate {
     @NotEmpty
     @NotNull(value = "Email is required")
     private String email;
-
-    @URL
-    private String imageUrl;
 }

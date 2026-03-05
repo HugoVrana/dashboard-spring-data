@@ -5,14 +5,17 @@ import com.dashboard.dataTransferObject.customer.CustomerCreate;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.customer.CustomerUpdate;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
-import jakarta.validation.Valid;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.service.interfaces.ICustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,9 +80,14 @@ public class CustomersController {
     }
 
     @Operation(summary = "Upload image of the customer", description = "Uploads an image of a customer")
-    @PostMapping("/image")
-    public ResponseEntity<ObjectId> uploadImage(@Valid @RequestParam("file") MultipartFile file) {
-        throw new   UnsupportedOperationException("Not supported yet.");
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> setImage(
+            @Parameter(description = "Customer ID") @PathVariable("id") String id,
+            @Parameter(description = "Image file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    schema = @Schema(type = "string", format = "binary")))
+            @RequestParam("file") MultipartFile file) {
+        String publicUrl = customersService.setCustomerImage(id, file);
+        return ResponseEntity.ok(publicUrl);
     }
 
     @Operation(summary = "Update customer", description = "Update existing customer")

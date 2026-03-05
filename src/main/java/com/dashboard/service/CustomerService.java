@@ -7,6 +7,7 @@ import com.dashboard.common.model.exception.ConflictException;
 import com.dashboard.dataTransferObject.customer.CustomerCreate;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.customer.CustomerUpdate;
+import com.dashboard.environment.R2Properties;
 import com.dashboard.model.ActivityEventType;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.common.model.exception.ResourceNotFoundException;
@@ -14,10 +15,14 @@ import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.repository.ICustomerRepository;
 import com.dashboard.service.interfaces.IActivityFeedService;
 import com.dashboard.service.interfaces.ICustomerService;
+import com.dashboard.service.interfaces.IR2Service;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.time.Instant;
 import java.util.*;
 
@@ -28,6 +33,7 @@ public class CustomerService implements ICustomerService {
     private final ICustomerRepository customerRepository;
     private final IActivityFeedService activityFeedService;
     private final ICustomerMapper customerMapper;
+    private final IR2Service r2Service;
 
     public List<Customer> getAllCustomers() {
         return customerRepository.findByAudit_DeletedAtIsNull();
@@ -59,9 +65,9 @@ public class CustomerService implements ICustomerService {
 
         publishActivityEvent(ActivityEventType.CUSTOMER_CREATED, customer, Map.of(
                 "Name", customer.getName(),
-                "Email", customer.getEmail(),
-                "Image", customer.getImageId()
+                "Email", customer.getEmail()
         ));
+
         return customerMapper.toRead(customer);
     }
 
@@ -82,7 +88,7 @@ public class CustomerService implements ICustomerService {
         publishActivityEvent(ActivityEventType.CUSTOMER_UPDATED, saved, Map.of(
                 "Name", saved.getName(),
                 "Email", saved.getEmail(),
-                "Image", saved.getImageId()
+                "Image", saved.getImageId() != null ? saved.getImageId() : ""
         ));
 
         return customerMapper.toRead(saved);
@@ -99,8 +105,40 @@ public class CustomerService implements ICustomerService {
         publishActivityEvent(ActivityEventType.CUSTOMER_DELETED, customer, Map.of(
                 "Name", customer.getName(),
                 "Email", customer.getEmail(),
-                "Image", customer.getImageId()
+                "Image", customer.getImageId() != null ? customer.getImageId() : ""
         ));
+    }
+
+    @Override
+    public String setCustomerImage(String id, MultipartFile file) {
+        Customer customer = getCustomerOrThrow(id);
+
+        // Delete old image if exists
+        if (customer.getImageId() != null) {
+            String oldR2Key = R2Properties.buildR2Key(customer.get_id(), customer.getImageId());
+            r2Service.deleteFile(oldR2Key);
+        }
+
+        // Upload new image
+        String[] result = r2Service.uploadFile(file, customer.get_id());
+        if (result.length < 3) {
+            throw new ResourceNotFoundException("Image upload failed");
+        }
+
+        String publicUrl = result[0];
+        String imageObjectId = result[2];
+
+        if (imageObjectId == null || imageObjectId.isEmpty() || !ObjectId.isValid(imageObjectId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid image ID returned");
+        }
+
+        // Update customer with new image ID
+        ObjectId newImageId = new ObjectId(imageObjectId);
+        customer.setImageId(newImageId);
+        CustomerUpdate customerUpdate = customerMapper.toUpdate(customer);
+        updateCustomer(customer.get_id().toHexString(), customerUpdate);
+
+        return publicUrl;
     }
 
     private Customer getCustomerOrThrow(String id) {
@@ -113,13 +151,11 @@ public class CustomerService implements ICustomerService {
     }
 
     private Customer insertCustomer(Customer customer) {
-        Customer saved = customerRepository.insert(customer);
-        return saved;
+        return customerRepository.insert(customer);
     }
 
     private Customer saveCustomer(Customer customer) {
-        Customer saved = customerRepository.save(customer);
-        return saved;
+        return customerRepository.save(customer);
     }
 
     private void publishActivityEvent(ActivityEventType type, Customer customer, Map<String, Object> extraMetadata) {
