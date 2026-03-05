@@ -12,6 +12,12 @@ import com.dashboard.repository.IInvoiceSearchRepository;
 import com.dashboard.repository.IRevenueRepository;
 import com.dashboard.repository.IUserRepository;
 import com.dashboard.service.interfaces.IR2Service;
+import de.flapdoodle.embed.mongo.commands.ServerAddress;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
+import software.amazon.awssdk.services.s3.S3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Epic;
 import net.datafaker.Faker;
@@ -19,36 +25,40 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
 /**
- * Base class for full-stack integration tests using Testcontainers MongoDB.
+ * Base class for full-stack integration tests using embedded MongoDB.
  */
 @Epic("Integration Tests")
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
 
-    @ServiceConnection
-    static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0")
-            .waitingFor(Wait.forLogMessage("(?i).*waiting for connections.*\\n", 1))
-            .withStartupTimeout(Duration.ofMinutes(2));
+    private static final TransitionWalker.ReachedState<RunningMongodProcess> mongodProcess;
+    private static final String mongoUri;
 
     static {
-        mongoDBContainer.start();
+        mongodProcess = Mongod.instance().start(Version.Main.V7_0);
+        ServerAddress serverAddress = mongodProcess.current().getServerAddress();
+        mongoUri = "mongodb://" + serverAddress.getHost() + ":" + serverAddress.getPort() + "/test";
+    }
+
+    @DynamicPropertySource
+    static void setMongoProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> mongoUri);
+        registry.add("spring.mongodb.uri", () -> mongoUri);
     }
 
     protected static final Faker faker = new Faker();
@@ -76,6 +86,9 @@ public abstract class BaseIntegrationTest {
 
     @MockitoBean
     protected IR2Service r2Service;
+
+    @MockitoBean
+    protected S3Client s3Client;
 
     @BeforeEach
     void cleanDatabase() {
