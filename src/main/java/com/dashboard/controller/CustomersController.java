@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class CustomersController {
 
     @Operation(summary = "Get all customers", description = "Retrieves a list of all customers")
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<List<CustomerRead>> getAllCustomers() {
         List<Customer> customers = customersService.getAllCustomers();
         List<CustomerRead> customerDtos = new ArrayList<>();
@@ -57,6 +59,7 @@ public class CustomersController {
 
     @Operation(summary = "Get customer by ID", description = "Retrieves a specific customer by their ID")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<CustomerRead> getCustomerById(@Parameter(description = "Customer ID") @PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) {
             throw new ResourceNotFoundException("This id is invalid");
@@ -75,6 +78,7 @@ public class CustomersController {
 
     @Operation(summary = "Get customer count", description = "Returns the total number of customers")
     @GetMapping("/count")
+    @PreAuthorize("hasAuthority('dashboard-customers-read')")
     public ResponseEntity<Long> getCustomerCount() {
         long count = customersService.getCount();
         return ResponseEntity.ok(count);
@@ -82,6 +86,7 @@ public class CustomersController {
 
     @Operation(summary = "Create customer", description = "Creates a new customer")
     @PostMapping()
+    @PreAuthorize("hasAuthority('dashboard-customers-create')")
     public ResponseEntity<CustomerRead> createCustomer(@Valid @RequestBody CustomerCreate customerCreate) {
         CustomerRead created = customersService.createCustomer(customerCreate);
         URI location = URI.create("/customers/" + created.getId());
@@ -90,6 +95,7 @@ public class CustomersController {
 
     @Operation(summary = "Upload image of the customer", description = "Uploads an image of a customer")
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('dashboard-customers-update')")
     public ResponseEntity<String> setImage(
             @Parameter(description = "Customer ID") @PathVariable("id") String id,
             @Parameter(description = "Image file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -101,6 +107,7 @@ public class CustomersController {
 
     @Operation(summary = "Update customer", description = "Update existing customer")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-customers-update')")
     public ResponseEntity<CustomerRead> updateCustomer(
             @Parameter(description = "Customer ID") @PathVariable("id") String id,
             @Valid @RequestBody CustomerUpdate customerUpdate) {
@@ -111,6 +118,7 @@ public class CustomersController {
 
     @Operation(summary = "Delete customer", description = "Soft deletes a customer by its ID")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('dashboard-customers-delete')")
     public ResponseEntity<Integer> deleteCustomer(@Parameter(description = "Customer ID") @PathVariable("id") String id) {
         customersService.deleteCustomer(id);
         return ResponseEntity.ok(1);
