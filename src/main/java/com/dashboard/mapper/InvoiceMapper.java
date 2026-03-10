@@ -44,9 +44,9 @@ public class InvoiceMapper implements IInvoiceMapper {
     }
 
     @Override
-    public Invoice toModel(InvoiceUpdate invoiceUpdate, Customer customer) {
+    public Invoice toModel(String id, InvoiceUpdate invoiceUpdate, Customer customer) {
         Invoice invoice = new Invoice();
-        invoice.set_id(new ObjectId(invoiceUpdate.getId()));
+        invoice.set_id(new ObjectId(id));
         invoice.setStatus(invoiceUpdate.getStatus());
         invoice.setAmount(invoiceUpdate.getAmount());
         invoice.setCustomer(customer);

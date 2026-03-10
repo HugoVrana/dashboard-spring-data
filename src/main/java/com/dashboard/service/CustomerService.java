@@ -5,6 +5,9 @@ import com.dashboard.common.model.ActivityEvent;
 import com.dashboard.common.model.Audit;
 import com.dashboard.common.model.exception.ConflictException;
 import com.dashboard.common.model.exception.ResourceNotFoundException;
+import com.dashboard.common.utility.diff.DiffComparer;
+import com.dashboard.common.utility.diff.DiffResult;
+import com.dashboard.context.DiffContext;
 import com.dashboard.dataTransferObject.customer.CustomerCreate;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.customer.CustomerUpdate;
@@ -34,8 +37,9 @@ import java.util.UUID;
 @Scope("singleton")
 @RequiredArgsConstructor
 public class CustomerService implements ICustomerService {
-    private final ICustomerRepository customerRepository;
+
     private final IActivityFeedService activityFeedService;
+    private final ICustomerRepository customerRepository;
     private final ICustomerMapper customerMapper;
     private final IR2Service r2Service;
 
@@ -67,10 +71,10 @@ public class CustomerService implements ICustomerService {
         customer.setAudit(audit);
         customer = insertCustomer(customer);
 
-        publishActivityEvent(ActivityEventType.CUSTOMER_CREATED, customer, Map.of(
-                "Name", customer.getName(),
-                "Email", customer.getEmail()
-        ));
+        DiffComparer<Customer> comparer = new DiffComparer<>(null, customer);
+        DiffResult diff = comparer.compare();
+        DiffContext.addDiff(diff.toJson());
+        publishActivityEvent(ActivityEventType.CUSTOMER_CREATED, customer);
 
         return customerMapper.toRead(customer);
     }
@@ -78,6 +82,12 @@ public class CustomerService implements ICustomerService {
     @Override
     public CustomerRead updateCustomer(String id, CustomerUpdate customerUpdate) {
         Customer existingCustomer = getCustomerOrThrow(id);
+
+        Customer oldState = new Customer();
+        oldState.set_id(existingCustomer.get_id());
+        oldState.setName(existingCustomer.getName());
+        oldState.setEmail(existingCustomer.getEmail());
+        oldState.setImageId(existingCustomer.getImageId());
 
         Audit audit = existingCustomer.getAudit();
         audit.setUpdatedAt(Instant.now());
@@ -89,11 +99,10 @@ public class CustomerService implements ICustomerService {
 
         Customer saved = saveCustomer(existingCustomer);
 
-        publishActivityEvent(ActivityEventType.CUSTOMER_UPDATED, saved, Map.of(
-                "Name", saved.getName(),
-                "Email", saved.getEmail(),
-                "Image", saved.getImageId() != null ? saved.getImageId() : ""
-        ));
+        DiffComparer<Customer> comparerUpdate = new DiffComparer<>(oldState, saved);
+        DiffResult diffUpdate = comparerUpdate.compare();
+        DiffContext.addDiff(diffUpdate.toJson());
+        publishActivityEvent(ActivityEventType.CUSTOMER_UPDATED, saved);
 
         return customerMapper.toRead(saved);
     }
@@ -101,16 +110,22 @@ public class CustomerService implements ICustomerService {
     @Override
     public void deleteCustomer(String id) {
         Customer customer = getCustomerOrThrow(id);
+
+        Customer oldState = new Customer();
+        oldState.set_id(customer.get_id());
+        oldState.setName(customer.getName());
+        oldState.setEmail(customer.getEmail());
+        oldState.setImageId(customer.getImageId());
+
         Audit audit = customer.getAudit();
         audit.setDeletedAt(Instant.now());
         customer.setAudit(audit);
         saveCustomer(customer);
 
-        publishActivityEvent(ActivityEventType.CUSTOMER_DELETED, customer, Map.of(
-                "Name", customer.getName(),
-                "Email", customer.getEmail(),
-                "Image", customer.getImageId() != null ? customer.getImageId() : ""
-        ));
+        DiffComparer<Customer> comparerDelete = new DiffComparer<>(oldState, null);
+        DiffResult diffDelete = comparerDelete.compare();
+        DiffContext.addDiff(diffDelete.toJson());
+        publishActivityEvent(ActivityEventType.CUSTOMER_DELETED, customer);
     }
 
     @Override
@@ -162,13 +177,12 @@ public class CustomerService implements ICustomerService {
         return customerRepository.save(customer);
     }
 
-    private void publishActivityEvent(ActivityEventType type, Customer customer, Map<String, Object> extraMetadata) {
+    private void publishActivityEvent(ActivityEventType type, Customer customer) {
         GrantsAuthentication auth = GrantsAuthentication.current();
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("customerId", customer.get_id().toHexString());
         metadata.put("customerName", customer.getName());
         metadata.put("userImageUrl", auth.getProfileImageUrlOrEmpty());
-        metadata.putAll(extraMetadata);
 
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())
@@ -178,6 +192,5 @@ public class CustomerService implements ICustomerService {
                 .metadata(metadata)
                 .build();
         activityFeedService.publishEvent(event);
-
     }
 }
