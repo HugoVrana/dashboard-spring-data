@@ -73,7 +73,7 @@ public class CustomerService implements ICustomerService {
 
         DiffComparer<Customer> comparer = new DiffComparer<>(null, customer);
         DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffContext.addDiff(diff.toJson());
         publishActivityEvent(ActivityEventType.CUSTOMER_CREATED, customer);
 
         return customerMapper.toRead(customer);
@@ -99,9 +99,9 @@ public class CustomerService implements ICustomerService {
 
         Customer saved = saveCustomer(existingCustomer);
 
-        DiffComparer<Customer> comparer = new DiffComparer<>(oldState, saved);
-        DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffComparer<Customer> comparerUpdate = new DiffComparer<>(oldState, saved);
+        DiffResult diffUpdate = comparerUpdate.compare();
+        DiffContext.addDiff(diffUpdate.toJson());
         publishActivityEvent(ActivityEventType.CUSTOMER_UPDATED, saved);
 
         return customerMapper.toRead(saved);
@@ -122,9 +122,9 @@ public class CustomerService implements ICustomerService {
         customer.setAudit(audit);
         saveCustomer(customer);
 
-        DiffComparer<Customer> comparer = new DiffComparer<>(oldState, null);
-        DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffComparer<Customer> comparerDelete = new DiffComparer<>(oldState, null);
+        DiffResult diffDelete = comparerDelete.compare();
+        DiffContext.addDiff(diffDelete.toJson());
         publishActivityEvent(ActivityEventType.CUSTOMER_DELETED, customer);
     }
 

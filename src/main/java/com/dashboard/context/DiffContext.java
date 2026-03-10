@@ -1,15 +1,22 @@
 package com.dashboard.context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DiffContext {
 
-    private static final ThreadLocal<String> DIFF_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<List<String>> DIFF_HOLDER = ThreadLocal.withInitial(ArrayList::new);
 
-    public static void setDiff(String diff) {
-        DIFF_HOLDER.set(diff);
+    public static void addDiff(String diff) {
+        DIFF_HOLDER.get().add(diff);
     }
 
     public static String getDiff() {
-        return DIFF_HOLDER.get();
+        List<String> diffs = DIFF_HOLDER.get();
+        if (diffs.isEmpty()) {
+            return null;
+        }
+        return String.join(",", diffs);
     }
 
     public static void clear() {

@@ -112,7 +112,7 @@ public class InvoiceService implements IInvoiceService {
 
         DiffComparer<Invoice> comparer = new DiffComparer<>(null, invoice);
         DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffContext.addDiff(diff.toJson());
         publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice);
 
         return invoiceMapper.toReadWithCustomer(invoice);
@@ -142,7 +142,7 @@ public class InvoiceService implements IInvoiceService {
 
         DiffComparer<Invoice> comparer = new DiffComparer<>(oldState, invoice);
         DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffContext.addDiff(diff.toJson());
         publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice);
 
         return invoiceMapper.toReadWithCustomer(invoice);
@@ -166,9 +166,9 @@ public class InvoiceService implements IInvoiceService {
 
         revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount().negate());
 
-        DiffComparer<Invoice> comparer = new DiffComparer<>(oldState, null);
-        DiffResult diff = comparer.compare();
-        DiffContext.setDiff(diff.toJson());
+        DiffComparer<Invoice> comparerDelete = new DiffComparer<>(oldState, null);
+        DiffResult diffDelete = comparerDelete.compare();
+        DiffContext.addDiff(diffDelete.toJson());
         publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice);
     }
 
