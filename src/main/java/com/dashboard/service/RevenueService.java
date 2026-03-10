@@ -8,7 +8,6 @@ import com.dashboard.repository.IRevenueRepository;
 import com.dashboard.service.interfaces.IRevenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Month;
