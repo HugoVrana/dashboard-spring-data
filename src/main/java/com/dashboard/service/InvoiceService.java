@@ -5,6 +5,9 @@ import com.dashboard.common.model.ActivityEvent;
 import com.dashboard.common.model.Audit;
 import com.dashboard.common.model.exception.NotFoundException;
 import com.dashboard.common.model.exception.ResourceNotFoundException;
+import com.dashboard.common.utility.diff.DiffComparer;
+import com.dashboard.common.utility.diff.DiffResult;
+import com.dashboard.context.DiffContext;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceUpdate;
@@ -106,16 +109,24 @@ public class InvoiceService implements IInvoiceService {
         invoice = insertInvoice(invoice);
 
         revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount());
-        publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice, Map.of(
-                "amount", invoice.getAmount(),
-                "status", invoice.getStatus()
-        ));
+
+        DiffComparer<Invoice> comparer = new DiffComparer<>(null, invoice);
+        DiffResult diff = comparer.compare();
+        DiffContext.setDiff(diff.toJson());
+        publishActivityEvent(ActivityEventType.INVOICE_CREATED, invoice);
 
         return invoiceMapper.toReadWithCustomer(invoice);
     }
 
     public InvoiceRead updateInvoice(String id, InvoiceUpdate invoiceUpdate) {
         Invoice existingInvoice = getInvoiceOrThrow(id);
+
+        Invoice oldState = new Invoice();
+        oldState.set_id(existingInvoice.get_id());
+        oldState.setCustomer(existingInvoice.getCustomer());
+        oldState.setAmount(existingInvoice.getAmount());
+        oldState.setDate(existingInvoice.getDate());
+        oldState.setStatus(existingInvoice.getStatus());
 
         ObjectId customerId = new ObjectId(invoiceUpdate.getCustomerId());
         Customer customer = customerService.getCustomer(customerId)
@@ -124,21 +135,28 @@ public class InvoiceService implements IInvoiceService {
         Audit audit = existingInvoice.getAudit();
         audit.setUpdatedAt(Instant.now());
 
-        Invoice invoice = invoiceMapper.toModel(invoiceUpdate, customer);
+        Invoice invoice = invoiceMapper.toModel(id, invoiceUpdate, customer);
         invoice.setDate(existingInvoice.getDate());
         invoice.setAudit(audit);
         invoice = saveInvoice(invoice);
 
-        publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice, Map.of(
-                "amount", invoice.getAmount(),
-                "status", invoice.getStatus()
-        ));
+        DiffComparer<Invoice> comparer = new DiffComparer<>(oldState, invoice);
+        DiffResult diff = comparer.compare();
+        DiffContext.setDiff(diff.toJson());
+        publishActivityEvent(ActivityEventType.INVOICE_UPDATED, invoice);
 
         return invoiceMapper.toReadWithCustomer(invoice);
     }
 
     public void deleteInvoice(String id) {
         Invoice invoice = getInvoiceOrThrow(id);
+
+        Invoice oldState = new Invoice();
+        oldState.set_id(invoice.get_id());
+        oldState.setCustomer(invoice.getCustomer());
+        oldState.setAmount(invoice.getAmount());
+        oldState.setDate(invoice.getDate());
+        oldState.setStatus(invoice.getStatus());
 
         Audit audit = invoice.getAudit();
         audit.setDeletedAt(Instant.now());
@@ -147,7 +165,11 @@ public class InvoiceService implements IInvoiceService {
         invoiceSearchService.markInvoiceDeleted(invoice.get_id());
 
         revenueService.adjustRevenue(invoice.getDate().getMonth(), invoice.getDate().getYear(), invoice.getAmount().negate());
-        publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice, Map.of());
+
+        DiffComparer<Invoice> comparer = new DiffComparer<>(oldState, null);
+        DiffResult diff = comparer.compare();
+        DiffContext.setDiff(diff.toJson());
+        publishActivityEvent(ActivityEventType.INVOICE_DELETED, invoice);
     }
 
     private Page<Invoice> searchAllInvoices(Pageable pageable) {
@@ -247,13 +269,12 @@ public class InvoiceService implements IInvoiceService {
         return saved;
     }
 
-    private void publishActivityEvent(ActivityEventType type, Invoice invoice, Map<String, Object> extraMetadata) {
+    private void publishActivityEvent(ActivityEventType type, Invoice invoice) {
         GrantsAuthentication auth = GrantsAuthentication.current();
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("invoiceId", invoice.get_id().toHexString());
         metadata.put("customerName", invoice.getCustomer().getName());
         metadata.put("userImageUrl", auth.getProfileImageUrlOrEmpty());
-        metadata.putAll(extraMetadata);
 
         ActivityEvent event = ActivityEvent.builder()
                 .id(UUID.randomUUID().toString())

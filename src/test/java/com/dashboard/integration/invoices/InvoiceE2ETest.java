@@ -96,7 +96,6 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         Invoice invoice = createAndSaveInvoice(testCustomer, "pending");
 
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
-                invoice.get_id().toHexString(),
                 "paid",
                 new BigDecimal("2500.00"),
                 testCustomer.get_id().toHexString()

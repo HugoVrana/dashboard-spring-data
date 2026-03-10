@@ -14,5 +14,5 @@ public interface IInvoiceMapper {
 
     Invoice toModel(InvoiceCreate invoiceCreate, Customer customer);
 
-    Invoice toModel(InvoiceUpdate invoiceUpdate, Customer customer);
+    Invoice toModel(String id, InvoiceUpdate invoiceUpdate, Customer customer);
 }

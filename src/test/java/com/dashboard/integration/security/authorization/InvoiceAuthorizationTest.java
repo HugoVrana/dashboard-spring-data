@@ -79,7 +79,6 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @DisplayName("PUT /invoices/{id} - correct grant allows access")
     void updateInvoice_WithCorrectGrant_Returns201() throws Exception {
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
-                testInvoice.get_id().toHexString(),
                 "paid",
                 new BigDecimal("1500.00"),
                 testCustomer.get_id().toHexString()
@@ -96,7 +95,6 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @DisplayName("PUT /invoices/{id} - missing grant returns 403")
     void updateInvoice_WithoutGrant_Returns403() throws Exception {
         InvoiceUpdate invoiceUpdate = new InvoiceUpdate(
-                testInvoice.get_id().toHexString(),
                 "paid",
                 new BigDecimal("1500.00"),
                 testCustomer.get_id().toHexString()

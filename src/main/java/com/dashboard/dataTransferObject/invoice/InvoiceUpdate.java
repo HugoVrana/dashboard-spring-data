@@ -13,10 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvoiceUpdate {
-    @NotNull(value = "Id is required")
-    @NotEmpty
-    private String id;
-
     @NotNull(value = "Status is required")
     @NotEmpty
     private String status;

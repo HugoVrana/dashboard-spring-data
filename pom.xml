@@ -126,7 +126,7 @@
         <dependency>
             <groupId>com.dashboard</groupId>
             <artifactId>common</artifactId>
-            <version>0.0.14</version>
+            <version>0.0.17-beta2</version>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
