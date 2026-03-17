@@ -15,7 +15,7 @@ public class CustomerAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /customers/ - correct grant allows access")
     void getAllCustomers_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/customers/")
+        mockMvc.perform(get("/api/v1/customers/")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk());
     }
@@ -23,7 +23,7 @@ public class CustomerAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /customers/ - missing grant returns 403")
     void getAllCustomers_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(get("/customers/")
+        mockMvc.perform(get("/api/v1/customers/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isForbidden());
     }
@@ -31,7 +31,7 @@ public class CustomerAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /customers/{id} - correct grant allows access")
     void getCustomerById_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/customers/" + testCustomer.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/customers/" + testCustomer.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk());
     }
@@ -39,7 +39,7 @@ public class CustomerAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /customers/count - correct grant allows access")
     void getCustomerCount_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/customers/count")
+        mockMvc.perform(get("/api/v1/customers/count")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk());
     }

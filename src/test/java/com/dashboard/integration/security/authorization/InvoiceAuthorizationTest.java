@@ -7,12 +7,11 @@ import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import java.math.BigDecimal;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import java.math.BigDecimal;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Invoice Endpoints")
@@ -22,7 +21,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /invoices/ - correct grant allows access")
     void getAllInvoices_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk());
     }
@@ -30,7 +29,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /invoices/ - missing grant returns 403")
     void getAllInvoices_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isForbidden());
     }
@@ -38,7 +37,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /invoices/{id} - correct grant allows access")
     void getInvoiceById_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk());
     }
@@ -46,7 +45,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /invoices/{id} - missing grant returns 403")
     void getInvoiceById_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isForbidden());
     }
@@ -56,7 +55,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     void createInvoice_WithCorrectGrant_Returns201() throws Exception {
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
 
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-create"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))
@@ -68,7 +67,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     void createInvoice_WithoutGrant_Returns403() throws Exception {
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
 
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-read"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))
@@ -84,7 +83,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
                 testCustomer.get_id().toHexString()
         );
 
-        mockMvc.perform(put("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(put("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-update"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
@@ -100,7 +99,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
                 testCustomer.get_id().toHexString()
         );
 
-        mockMvc.perform(put("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(put("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-read"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
@@ -110,7 +109,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("DELETE /invoices/{id} - correct grant allows access")
     void deleteInvoice_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(delete("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(delete("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-delete")))
                 .andExpect(status().isOk());
     }
@@ -118,7 +117,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("DELETE /invoices/{id} - missing grant returns 403")
     void deleteInvoice_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(delete("/invoices/" + testInvoice.get_id().toHexString())
+        mockMvc.perform(delete("/api/v1/invoices/" + testInvoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isForbidden());
     }
@@ -131,7 +130,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
         pageRequest.setPage(1);
         pageRequest.setSize(10);
 
-        mockMvc.perform(post("/invoices/search")
+        mockMvc.perform(post("/api/v1/invoices/search")
                         .header("Authorization", authHeader("dashboard-invoices-read"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
@@ -146,7 +145,7 @@ public class InvoiceAuthorizationTest extends BaseAuthorizationSecurityTest {
         pageRequest.setPage(1);
         pageRequest.setSize(10);
 
-        mockMvc.perform(post("/invoices/search")
+        mockMvc.perform(post("/api/v1/invoices/search")
                         .header("Authorization", authHeader("dashboard-customers-read"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))

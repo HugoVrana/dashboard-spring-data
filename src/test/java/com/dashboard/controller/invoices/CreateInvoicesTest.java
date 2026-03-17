@@ -1,20 +1,20 @@
 package com.dashboard.controller.invoices;
 
+import com.dashboard.common.model.exception.NotFoundException;
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
-import com.dashboard.common.model.exception.NotFoundException;
 import com.dashboard.model.entities.Invoice;
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-
+import java.math.BigDecimal;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import java.math.BigDecimal;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Create Invoice")
 @DisplayName("POST /invoices")

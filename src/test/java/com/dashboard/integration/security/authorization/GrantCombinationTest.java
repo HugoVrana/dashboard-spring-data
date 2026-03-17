@@ -21,11 +21,11 @@ public class GrantCombinationTest extends BaseAuthorizationSecurityTest {
     void multipleGrants_AllowMultipleEndpoints() throws Exception {
         String authHeader = authHeader("dashboard-invoices-read", "dashboard-customers-read");
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/customers/")
+        mockMvc.perform(get("/api/v1/customers/")
                         .header("Authorization", authHeader))
                 .andExpect(status().isOk());
     }
@@ -40,12 +40,12 @@ public class GrantCombinationTest extends BaseAuthorizationSecurityTest {
                 "dashboard-invoices-delete"
         );
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader))
                 .andExpect(status().isOk());
 
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("500.00"), testCustomer.get_id().toHexString());
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .header("Authorization", authHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))

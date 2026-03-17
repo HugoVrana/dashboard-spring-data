@@ -13,7 +13,7 @@ public class UserAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /users/ - correct grant allows access")
     void getAllUsers_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/users/")
+        mockMvc.perform(get("/api/v1/users/")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isOk());
     }
@@ -21,7 +21,7 @@ public class UserAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /users/ - missing grant returns 403")
     void getAllUsers_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(get("/users/")
+        mockMvc.perform(get("/api/v1/users/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isForbidden());
     }
