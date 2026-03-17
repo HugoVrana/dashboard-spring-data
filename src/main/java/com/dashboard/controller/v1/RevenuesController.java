@@ -1,4 +1,4 @@
-package com.dashboard.controller;
+package com.dashboard.controller.v1;
 
 import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
-@RestController
 @CrossOrigin
-@Tag(name = "Revenues", description = "Revenue data operations")
-@RequestMapping(value = "/revenues", produces = "application/json")
+@RestController
 @RequiredArgsConstructor
+@Tag(name = "Revenues", description = "Revenue data operations")
+@RequestMapping(value = "api/v1/revenues", produces = "application/json")
 public class RevenuesController {
 
     private final IRevenueService revenueService;

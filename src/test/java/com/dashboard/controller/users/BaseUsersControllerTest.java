@@ -2,7 +2,7 @@ package com.dashboard.controller.users;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.Audit;
-import com.dashboard.controller.UsersController;
+import com.dashboard.controller.v1.UsersController;
 import com.dashboard.dataTransferObject.user.UserRead;
 import com.dashboard.mapper.interfaces.IUserMapper;
 import com.dashboard.model.entities.User;

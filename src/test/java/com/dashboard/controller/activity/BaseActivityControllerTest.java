@@ -2,7 +2,7 @@ package com.dashboard.controller.activity;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.ActivityEvent;
-import com.dashboard.controller.ActivityController;
+import com.dashboard.controller.v1.ActivityController;
 import com.dashboard.service.interfaces.IActivityFeedService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Epic;

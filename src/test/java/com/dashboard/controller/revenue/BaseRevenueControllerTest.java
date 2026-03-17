@@ -2,7 +2,7 @@ package com.dashboard.controller.revenue;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.Audit;
-import com.dashboard.controller.RevenuesController;
+import com.dashboard.controller.v1.RevenuesController;
 import com.dashboard.dataTransferObject.revenue.RevenueRead;
 import com.dashboard.mapper.interfaces.IRevenueMapper;
 import com.dashboard.model.entities.Revenue;

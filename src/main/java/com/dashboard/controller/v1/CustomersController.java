@@ -1,4 +1,4 @@
-package com.dashboard.controller;
+package com.dashboard.controller.v1;
 
 import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.customer.CustomerCreate;
@@ -34,11 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
 @CrossOrigin
-@Tag(name = "Customers", description = "Customer management operations")
-@RequestMapping(value = "/customers", produces = "application/json")
+@RestController
 @RequiredArgsConstructor
+@Tag(name = "Customers", description = "Customer management operations")
+@RequestMapping(value = "api/v1/customers", produces = "application/json")
 public class CustomersController {
 
     private final ICustomerService customersService;
