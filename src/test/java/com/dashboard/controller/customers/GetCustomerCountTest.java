@@ -18,7 +18,7 @@ public class GetCustomerCountTest extends BaseCustomersControllerTest {
     void getCustomerCount_ReturnsCount() throws Exception {
         when(customersService.getCount()).thenReturn(42L);
 
-        mockMvc.perform(get("/customers/count"))
+        mockMvc.perform(get("/api/v1/customers/count"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("42"));
@@ -29,7 +29,7 @@ public class GetCustomerCountTest extends BaseCustomersControllerTest {
     void getCustomerCount_ReturnsZeroWhenNoCustomers() throws Exception {
         when(customersService.getCount()).thenReturn(0L);
 
-        mockMvc.perform(get("/customers/count"))
+        mockMvc.perform(get("/api/v1/customers/count"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("0"));

@@ -40,7 +40,7 @@ public class SearchInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceSearchService.search(eq("test"), any(Pageable.class))).thenReturn(searchPage);
         when(invoiceSearchMapper.toRead(searchDoc)).thenReturn(testInvoiceRead);
 
-        mockMvc.perform(post("/invoices/search")
+        mockMvc.perform(post("/api/v1/invoices/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isOk())
@@ -60,7 +60,7 @@ public class SearchInvoicesTest extends BaseInvoicesControllerTest {
         Page<InvoiceSearchDocument> emptyPage = Page.empty();
         when(invoiceSearchService.search(eq("nonexistent"), any(Pageable.class))).thenReturn(emptyPage);
 
-        mockMvc.perform(post("/invoices/search")
+        mockMvc.perform(post("/api/v1/invoices/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isNoContent());
@@ -74,7 +74,7 @@ public class SearchInvoicesTest extends BaseInvoicesControllerTest {
         pageRequest.setSize(10);
         pageRequest.setSearch("test");
 
-        mockMvc.perform(post("/invoices/search")
+        mockMvc.perform(post("/api/v1/invoices/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isInternalServerError());

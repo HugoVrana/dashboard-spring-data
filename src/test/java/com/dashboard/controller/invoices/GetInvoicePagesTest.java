@@ -27,7 +27,7 @@ public class GetInvoicePagesTest extends BaseInvoicesControllerTest {
 
         when(invoiceSearchService.search(any(), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/invoices/pages"))
+        mockMvc.perform(get("/api/v1/invoices/pages"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("3"));
@@ -40,7 +40,7 @@ public class GetInvoicePagesTest extends BaseInvoicesControllerTest {
 
         when(invoiceSearchService.search(any(), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/invoices/pages")
+        mockMvc.perform(get("/api/v1/invoices/pages")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

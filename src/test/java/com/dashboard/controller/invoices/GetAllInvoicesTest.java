@@ -30,7 +30,7 @@ class GetAllInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceService.getAllInvoices()).thenReturn(List.of(testInvoice));
         when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
 
-        mockMvc.perform(get("/invoices/"))
+        mockMvc.perform(get("/api/v1/invoices/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testInvoiceId.toHexString()))
@@ -43,7 +43,7 @@ class GetAllInvoicesTest extends BaseInvoicesControllerTest {
     void getAllInvoices_ReturnsEmptyListWhenNoInvoices() throws Exception {
         when(invoiceService.getAllInvoices()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/invoices/"))
+        mockMvc.perform(get("/api/v1/invoices/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

@@ -30,7 +30,7 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
 
         when(invoiceService.createInvoice(any(InvoiceCreate.class))).thenReturn(testInvoiceRead);
 
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))
                 .andExpect(status().isCreated())
@@ -46,7 +46,7 @@ public class CreateInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceService.createInvoice(any(InvoiceCreate.class)))
                 .thenThrow(new NotFoundException("The provided customer id does not exist"));
 
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))
                 .andExpect(status().isInternalServerError());

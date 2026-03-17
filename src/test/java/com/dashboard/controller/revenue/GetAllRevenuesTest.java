@@ -29,7 +29,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         when(revenueService.getAllRevenues()).thenReturn(revenues);
         when(revenueMapper.toRead(testRevenue)).thenReturn(testRevenueRead);
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testRevenueId.toHexString()))
@@ -42,7 +42,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
     void getAllRevenues_ReturnsEmptyListWhenNoRevenues() throws Exception {
         when(revenueService.getAllRevenues()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -70,7 +70,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         when(revenueMapper.toRead(testRevenue)).thenReturn(testRevenueRead);
         when(revenueMapper.toRead(secondRevenue)).thenReturn(secondRevenueRead);
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

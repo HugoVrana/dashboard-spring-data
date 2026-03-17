@@ -34,7 +34,7 @@ public class SearchUsersTest extends BaseUsersControllerTest {
         when(userService.searchUsers(eq(testName), any(Pageable.class))).thenReturn(userPage);
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(post("/users/search")
+        mockMvc.perform(post("/api/v1/users/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isOk())
@@ -55,7 +55,7 @@ public class SearchUsersTest extends BaseUsersControllerTest {
         Page<User> emptyPage = Page.empty();
         when(userService.searchUsers(eq("nonexistent"), any(Pageable.class))).thenReturn(emptyPage);
 
-        mockMvc.perform(post("/users/search")
+        mockMvc.perform(post("/api/v1/users/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isNoContent());
@@ -73,7 +73,7 @@ public class SearchUsersTest extends BaseUsersControllerTest {
         when(userService.searchUsers(eq(testName), any(Pageable.class))).thenReturn(userPage);
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(post("/users/search")
+        mockMvc.perform(post("/api/v1/users/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isOk());
@@ -91,7 +91,7 @@ public class SearchUsersTest extends BaseUsersControllerTest {
         when(userService.searchUsers(eq(testName), any(Pageable.class))).thenReturn(userPage);
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(post("/users/search")
+        mockMvc.perform(post("/api/v1/users/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
                 .andExpect(status().isOk());

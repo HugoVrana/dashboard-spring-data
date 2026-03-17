@@ -24,7 +24,7 @@ public class GetAllUsersTest extends BaseUsersControllerTest {
         when(userService.getAllUsers()).thenReturn(users);
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(get("/users/"))
+        mockMvc.perform(get("/api/v1/users/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testUserId.toHexString()))
@@ -37,7 +37,7 @@ public class GetAllUsersTest extends BaseUsersControllerTest {
     void getAllUsers_ReturnsEmptyListWhenNoUsers() throws Exception {
         when(userService.getAllUsers()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/users/"))
+        mockMvc.perform(get("/api/v1/users/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
