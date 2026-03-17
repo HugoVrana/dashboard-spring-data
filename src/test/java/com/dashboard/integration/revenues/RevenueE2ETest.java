@@ -7,9 +7,11 @@ import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * E2E integration tests for Revenue endpoints.
@@ -25,7 +27,7 @@ public class RevenueE2ETest extends BaseIntegrationTest {
         Revenue revenue1 = createAndSaveRevenue();
         Revenue revenue2 = createAndSaveRevenue();
 
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -46,7 +48,7 @@ public class RevenueE2ETest extends BaseIntegrationTest {
         deletedRevenue.setAudit(createDeletedAudit());
         revenueRepository.save(deletedRevenue);
 
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -57,7 +59,7 @@ public class RevenueE2ETest extends BaseIntegrationTest {
     @Story("Empty Results")
     @DisplayName("GET /revenues/ returns empty array when no revenues")
     void getAllRevenues_ReturnsEmptyWhenNoRevenues() throws Exception {
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -69,7 +71,7 @@ public class RevenueE2ETest extends BaseIntegrationTest {
     void getAllRevenues_ReturnsRevenueWithData() throws Exception {
         Revenue revenue = createAndSaveRevenue();
 
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].month").value(revenue.getMonth().name()))

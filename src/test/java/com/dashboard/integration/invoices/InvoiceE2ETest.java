@@ -17,9 +17,16 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * E2E integration tests for Invoice endpoints.
@@ -42,7 +49,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         Invoice invoice1 = createAndSaveInvoice(testCustomer);
         Invoice invoice2 = createAndSaveInvoice(testCustomer);
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -58,7 +65,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
     void getInvoiceById_RetrievesCorrectInvoice() throws Exception {
         Invoice invoice = createAndSaveInvoice(testCustomer);
 
-        mockMvc.perform(get("/invoices/" + invoice.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/invoices/" + invoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(invoice.get_id().toHexString()))
@@ -73,7 +80,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
     void createInvoice_PersistsToMongoDB() throws Exception {
         InvoiceCreate invoiceCreate = new InvoiceCreate("pending", new BigDecimal("1500.00"), testCustomer.get_id().toHexString());
 
-        mockMvc.perform(post("/invoices")
+        mockMvc.perform(post("/api/v1/invoices")
                         .header("Authorization", authHeader("dashboard-invoices-create"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceCreate)))
@@ -101,7 +108,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
                 testCustomer.get_id().toHexString()
         );
 
-        mockMvc.perform(put("/invoices/" + invoice.get_id().toHexString())
+        mockMvc.perform(put("/api/v1/invoices/" + invoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-update"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
@@ -122,7 +129,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
     void deleteInvoice_SetsAuditDeletedAt() throws Exception {
         Invoice invoice = createAndSaveInvoice(testCustomer);
 
-        mockMvc.perform(delete("/invoices/" + invoice.get_id().toHexString())
+        mockMvc.perform(delete("/api/v1/invoices/" + invoice.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-invoices-delete")))
                 .andExpect(status().isOk());
 
@@ -144,7 +151,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         createAndSaveInvoice(testCustomer);
         createAndSaveInvoice(testCustomer);
 
-        mockMvc.perform(get("/invoices/count")
+        mockMvc.perform(get("/api/v1/invoices/count")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("3"));
@@ -158,7 +165,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         createAndSaveInvoice(testCustomer, "pending");
         createAndSaveInvoice(testCustomer, "paid");
 
-        mockMvc.perform(get("/invoices/count")
+        mockMvc.perform(get("/api/v1/invoices/count")
                         .param("status", "pending")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
@@ -174,7 +181,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
 
         BigDecimal expectedTotal = invoice1.getAmount().add(invoice2.getAmount());
 
-        mockMvc.perform(get("/invoices/amount")
+        mockMvc.perform(get("/api/v1/invoices/amount")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(expectedTotal.doubleValue()));
@@ -191,7 +198,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
         deletedInvoice.setAudit(createDeletedAudit());
         invoiceRepository.save(deletedInvoice);
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -202,7 +209,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
     @Story("Invoice Not Found")
     @DisplayName("GET /invoices/{id} returns 404 for non-existent invoice")
     void getInvoiceById_Returns404ForNonExistent() throws Exception {
-        mockMvc.perform(get("/invoices/507f1f77bcf86cd799439011")
+        mockMvc.perform(get("/api/v1/invoices/507f1f77bcf86cd799439011")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isNotFound());
     }

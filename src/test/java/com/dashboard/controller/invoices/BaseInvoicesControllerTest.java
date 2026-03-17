@@ -2,7 +2,7 @@ package com.dashboard.controller.invoices;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.Audit;
-import com.dashboard.controller.InvoicesController;
+import com.dashboard.controller.v1.InvoicesController;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;

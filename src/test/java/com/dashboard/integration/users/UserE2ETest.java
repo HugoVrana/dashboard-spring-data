@@ -9,10 +9,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * E2E integration tests for User endpoints.
@@ -28,7 +30,7 @@ public class UserE2ETest extends BaseIntegrationTest {
         User user1 = createAndSaveUser();
         User user2 = createAndSaveUser();
 
-        mockMvc.perform(get("/users/")
+        mockMvc.perform(get("/api/v1/users/")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -44,7 +46,7 @@ public class UserE2ETest extends BaseIntegrationTest {
     void getUserById_RetrievesById() throws Exception {
         User user = createAndSaveUser();
 
-        mockMvc.perform(get("/users/" + user.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/users/" + user.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.get_id().toHexString()))
@@ -58,7 +60,7 @@ public class UserE2ETest extends BaseIntegrationTest {
     void getUserByEmail_RetrievesByEmail() throws Exception {
         User user = createAndSaveUser();
 
-        mockMvc.perform(get("/users/email/" + user.getEmail())
+        mockMvc.perform(get("/api/v1/users/email/" + user.getEmail())
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.get_id().toHexString()))
@@ -77,7 +79,7 @@ public class UserE2ETest extends BaseIntegrationTest {
         pageRequest.setPage(1);
         pageRequest.setSize(10);
 
-        mockMvc.perform(post("/users/search")
+        mockMvc.perform(post("/api/v1/users/search")
                         .header("Authorization", authHeader("dashboard-users-create"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pageRequest)))
@@ -98,7 +100,7 @@ public class UserE2ETest extends BaseIntegrationTest {
         deletedUser.setAudit(createDeletedAudit());
         userRepository.save(deletedUser);
 
-        mockMvc.perform(get("/users/")
+        mockMvc.perform(get("/api/v1/users/")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -109,7 +111,7 @@ public class UserE2ETest extends BaseIntegrationTest {
     @Story("User Not Found")
     @DisplayName("GET /users/{id} returns 404 for non-existent user")
     void getUserById_Returns404ForNonExistent() throws Exception {
-        mockMvc.perform(get("/users/507f1f77bcf86cd799439011")
+        mockMvc.perform(get("/api/v1/users/507f1f77bcf86cd799439011")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isNotFound());
     }
@@ -118,7 +120,7 @@ public class UserE2ETest extends BaseIntegrationTest {
     @Story("User Email Not Found")
     @DisplayName("GET /users/email/{email} returns 404 for non-existent email")
     void getUserByEmail_Returns404ForNonExistent() throws Exception {
-        mockMvc.perform(get("/users/email/nonexistent@example.com")
+        mockMvc.perform(get("/api/v1/users/email/nonexistent@example.com")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isNotFound());
     }
@@ -127,7 +129,7 @@ public class UserE2ETest extends BaseIntegrationTest {
     @Story("Invalid ID")
     @DisplayName("GET /users/{id} returns 404 for invalid ID format")
     void getUserById_Returns404ForInvalidId() throws Exception {
-        mockMvc.perform(get("/users/invalid-id")
+        mockMvc.perform(get("/api/v1/users/invalid-id")
                         .header("Authorization", authHeader("dashboard-users-read")))
                 .andExpect(status().isNotFound());
     }

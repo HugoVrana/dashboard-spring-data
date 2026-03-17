@@ -23,7 +23,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     @Story("Valid Token")
     @DisplayName("should succeed with valid token")
     void validToken_Succeeds() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk());
     }
@@ -32,7 +32,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     @Story("Missing Token")
     @DisplayName("should return 403 when token is missing")
     void missingToken_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/"))
+        mockMvc.perform(get("/api/v1/invoices/"))
                 .andExpect(status().isForbidden());
     }
 
@@ -42,7 +42,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     void expiredToken_Returns403() throws Exception {
         String expiredToken = TestJwtTokenGenerator.generateExpiredToken();
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", "Bearer " + expiredToken))
                 .andExpect(status().isForbidden());
     }
@@ -53,7 +53,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     void invalidSignature_Returns403() throws Exception {
         String invalidToken = TestJwtTokenGenerator.generateTokenWithInvalidSignature();
 
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isForbidden());
     }
@@ -62,7 +62,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     @Story("Malformed Token")
     @DisplayName("should return 403 when token is malformed")
     void malformedToken_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", "Bearer not.a.valid.jwt.token"))
                 .andExpect(status().isForbidden());
     }
@@ -71,7 +71,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     @Story("Invalid Authorization Header")
     @DisplayName("should return 403 when authorization header has wrong format")
     void wrongAuthFormat_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", "Basic sometoken"))
                 .andExpect(status().isForbidden());
     }
@@ -80,7 +80,7 @@ public class JwtAuthenticationTest extends BaseIntegrationTest {
     @Story("Empty Bearer Token")
     @DisplayName("should return 403 when bearer token is empty")
     void emptyBearerToken_Returns403() throws Exception {
-        mockMvc.perform(get("/invoices/")
+        mockMvc.perform(get("/api/v1/invoices/")
                         .header("Authorization", "Bearer "))
                 .andExpect(status().isForbidden());
     }

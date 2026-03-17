@@ -6,10 +6,12 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * E2E integration tests for Customer endpoints.
@@ -25,7 +27,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
         Customer customer1 = createAndSaveCustomer();
         Customer customer2 = createAndSaveCustomer();
 
-        mockMvc.perform(get("/customers/")
+        mockMvc.perform(get("/api/v1/customers/")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -41,7 +43,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
     void getCustomerById_RetrievesById() throws Exception {
         Customer customer = createAndSaveCustomer();
 
-        mockMvc.perform(get("/customers/" + customer.get_id().toHexString())
+        mockMvc.perform(get("/api/v1/customers/" + customer.get_id().toHexString())
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(customer.get_id().toHexString()))
@@ -57,7 +59,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
         createAndSaveCustomer();
         createAndSaveCustomer();
 
-        mockMvc.perform(get("/customers/count")
+        mockMvc.perform(get("/api/v1/customers/count")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("3"));
@@ -74,7 +76,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
         deletedCustomer.setAudit(createDeletedAudit());
         customersRepository.save(deletedCustomer);
 
-        mockMvc.perform(get("/customers/")
+        mockMvc.perform(get("/api/v1/customers/")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -85,7 +87,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
     @Story("Customer Not Found")
     @DisplayName("GET /customers/{id} returns 404 for non-existent customer")
     void getCustomerById_Returns404ForNonExistent() throws Exception {
-        mockMvc.perform(get("/customers/507f1f77bcf86cd799439011")
+        mockMvc.perform(get("/api/v1/customers/507f1f77bcf86cd799439011")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isNotFound());
     }
@@ -94,7 +96,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
     @Story("Invalid ID")
     @DisplayName("GET /customers/{id} returns 404 for invalid ID format")
     void getCustomerById_Returns404ForInvalidId() throws Exception {
-        mockMvc.perform(get("/customers/invalid-id")
+        mockMvc.perform(get("/api/v1/customers/invalid-id")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isNotFound());
     }
@@ -111,7 +113,7 @@ public class CustomerE2ETest extends BaseIntegrationTest {
         deletedCustomer.setAudit(createDeletedAudit());
         customersRepository.save(deletedCustomer);
 
-        mockMvc.perform(get("/customers/count")
+        mockMvc.perform(get("/api/v1/customers/count")
                         .header("Authorization", authHeader("dashboard-customers-read")))
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));

@@ -11,7 +11,8 @@ import org.springframework.http.MediaType;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get Invoice By ID")
@@ -28,7 +29,7 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
         when(invoiceService.getInvoiceById(testInvoiceId.toHexString())).thenReturn(testInvoice);
         when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
 
-        mockMvc.perform(get("/invoices/{id}", testInvoiceId.toHexString()))
+        mockMvc.perform(get("/api/v1/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(testInvoiceId.toHexString()))
@@ -42,7 +43,7 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
         when(invoiceService.getInvoiceById(testInvoiceId.toHexString()))
                 .thenThrow(new ResourceNotFoundException("Invoice not found"));
 
-        mockMvc.perform(get("/invoices/{id}", testInvoiceId.toHexString()))
+        mockMvc.perform(get("/api/v1/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -52,7 +53,7 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
         when(invoiceService.getInvoiceById("invalid-id"))
                 .thenThrow(new ResourceNotFoundException("This id is invalid"));
 
-        mockMvc.perform(get("/invoices/{id}", "invalid-id"))
+        mockMvc.perform(get("/api/v1/invoices/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }
 }

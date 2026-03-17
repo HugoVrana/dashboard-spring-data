@@ -11,8 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get All Customers")
 @DisplayName("GET /customers")
@@ -26,7 +27,7 @@ public class GetAllCustomersTest extends BaseCustomersControllerTest {
         when(customersService.getAllCustomers()).thenReturn(List.of(testCustomer));
         when(customerMapper.toRead(testCustomer)).thenReturn(testCustomerRead);
 
-        mockMvc.perform(get("/customers/"))
+        mockMvc.perform(get("/api/v1/customers/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testCustomerId.toHexString()))
@@ -40,7 +41,7 @@ public class GetAllCustomersTest extends BaseCustomersControllerTest {
     void getAllCustomers_ReturnsEmptyListWhenNoCustomers() throws Exception {
         when(customersService.getAllCustomers()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/customers/"))
+        mockMvc.perform(get("/api/v1/customers/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -71,7 +72,7 @@ public class GetAllCustomersTest extends BaseCustomersControllerTest {
         when(customerMapper.toRead(testCustomer1)).thenReturn(testCustomerRead1);
         when(customerMapper.toRead(testCustomer2)).thenReturn(testCustomerRead2);
 
-        mockMvc.perform(get("/customers/"))
+        mockMvc.perform(get("/api/v1/customers/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

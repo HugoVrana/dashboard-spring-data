@@ -12,7 +12,9 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get Latest Invoices")
 @DisplayName("GET /invoices/latest")
@@ -29,7 +31,7 @@ class GetLatestInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceMapper.toRead(testInvoice)).thenReturn(testInvoiceRead);
         when(customerMapper.toRead(testInvoice.getCustomer())).thenReturn(customerRead);
 
-        mockMvc.perform(get("/invoices/latest"))
+        mockMvc.perform(get("/api/v1/invoices/latest"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -46,7 +48,7 @@ class GetLatestInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceMapper.toRead(testInvoice)).thenReturn(testInvoiceRead);
         when(customerMapper.toRead(testInvoice.getCustomer())).thenReturn(customerRead);
 
-        mockMvc.perform(get("/invoices/latest")
+        mockMvc.perform(get("/api/v1/invoices/latest")
                         .param("indexFrom", "0")
                         .param("indexTo", "5"))
                 .andExpect(status().isOk())
@@ -57,7 +59,7 @@ class GetLatestInvoicesTest extends BaseInvoicesControllerTest {
     @Test
     @DisplayName("should return 500 when indexFrom > indexTo")
     void getLatestInvoices_ThrowsWhenIndexFromGreaterThanIndexTo() throws Exception {
-        mockMvc.perform(get("/invoices/latest")
+        mockMvc.perform(get("/api/v1/invoices/latest")
                         .param("indexFrom", "10")
                         .param("indexTo", "5"))
                 .andExpect(status().isInternalServerError());

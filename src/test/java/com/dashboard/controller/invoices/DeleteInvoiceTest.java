@@ -19,7 +19,7 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
     void deleteInvoice_DeletesInvoiceSuccessfully() throws Exception {
         doNothing().when(invoiceService).deleteInvoice(testInvoiceId.toHexString());
 
-        mockMvc.perform(delete("/invoices/{id}", testInvoiceId.toHexString()))
+        mockMvc.perform(delete("/api/v1/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
     }
@@ -30,7 +30,7 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
         doThrow(new ResourceNotFoundException("Invoice not found"))
                 .when(invoiceService).deleteInvoice(testInvoiceId.toHexString());
 
-        mockMvc.perform(delete("/invoices/{id}", testInvoiceId.toHexString()))
+        mockMvc.perform(delete("/api/v1/invoices/{id}", testInvoiceId.toHexString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -40,7 +40,7 @@ public class DeleteInvoiceTest extends BaseInvoicesControllerTest {
         doThrow(new ResourceNotFoundException("This id is invalid"))
                 .when(invoiceService).deleteInvoice("invalid-id");
 
-        mockMvc.perform(delete("/invoices/{id}", "invalid-id"))
+        mockMvc.perform(delete("/api/v1/invoices/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }
 }

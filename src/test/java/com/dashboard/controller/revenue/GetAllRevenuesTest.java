@@ -8,16 +8,15 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-
 import java.math.BigDecimal;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get All Revenues")
 @DisplayName("GET /revenues")
@@ -29,7 +28,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         when(revenueService.getAllRevenues()).thenReturn(revenues);
         when(revenueMapper.toRead(testRevenue)).thenReturn(testRevenueRead);
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testRevenueId.toHexString()))
@@ -42,7 +41,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
     void getAllRevenues_ReturnsEmptyListWhenNoRevenues() throws Exception {
         when(revenueService.getAllRevenues()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -70,7 +69,7 @@ public class GetAllRevenuesTest extends BaseRevenueControllerTest {
         when(revenueMapper.toRead(testRevenue)).thenReturn(testRevenueRead);
         when(revenueMapper.toRead(secondRevenue)).thenReturn(secondRevenueRead);
 
-        mockMvc.perform(get("/revenues/"))
+        mockMvc.perform(get("/api/v1/revenues/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

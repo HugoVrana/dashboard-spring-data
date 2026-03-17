@@ -1,4 +1,4 @@
-package com.dashboard.controller;
+package com.dashboard.controller.v1;
 
 import com.dashboard.common.model.exception.ResourceNotFoundException;
 import com.dashboard.dataTransferObject.page.PageRead;
@@ -29,11 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
 @CrossOrigin
-@Tag(name = "Users", description = "User management operations")
-@RequestMapping(value = "/users", produces = "application/json")
+@RestController
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "User management operations")
+@RequestMapping(value = "api/v1/users", produces = "application/json")
 public class UsersController {
 
     private final IUserService userService;

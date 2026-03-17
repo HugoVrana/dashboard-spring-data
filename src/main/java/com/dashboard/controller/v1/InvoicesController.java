@@ -1,4 +1,4 @@
-package com.dashboard.controller;
+package com.dashboard.controller.v1;
 
 import com.dashboard.dataTransferObject.invoice.InvoiceCreate;
 import com.dashboard.dataTransferObject.invoice.InvoiceRead;
@@ -36,11 +36,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
 @CrossOrigin
-@Tag(name = "Invoices", description = "Invoice management operations")
-@RequestMapping(value = "/invoices", produces = "application/json")
+@RestController
 @RequiredArgsConstructor
+@Tag(name = "Invoices", description = "Invoice management operations")
+@RequestMapping(value = "api/v1/invoices", produces = "application/json")
 public class InvoicesController {
 
     private final IInvoiceService invoiceService;

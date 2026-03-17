@@ -11,7 +11,8 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get Customer By ID")
@@ -26,7 +27,7 @@ public class GetCustomerByIdTest extends BaseCustomersControllerTest {
         when(customersService.getCustomer(testCustomerId)).thenReturn(Optional.of(testCustomer));
         when(customerMapper.toRead(testCustomer)).thenReturn(testCustomerRead);
 
-        mockMvc.perform(get("/customers/{id}", testCustomerId.toHexString()))
+        mockMvc.perform(get("/api/v1/customers/{id}", testCustomerId.toHexString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(testCustomerId.toHexString()))
@@ -39,14 +40,14 @@ public class GetCustomerByIdTest extends BaseCustomersControllerTest {
     void getCustomerById_Returns404WhenNotFound() throws Exception {
         when(customersService.getCustomer(testCustomerId)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/customers/{id}", testCustomerId.toHexString()))
+        mockMvc.perform(get("/api/v1/customers/{id}", testCustomerId.toHexString()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("should return 404 when id is invalid")
     void getCustomerById_Returns404WhenIdInvalid() throws Exception {
-        mockMvc.perform(get("/customers/{id}", "invalid-id"))
+        mockMvc.perform(get("/api/v1/customers/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }
 }

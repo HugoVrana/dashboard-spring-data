@@ -2,7 +2,7 @@ package com.dashboard.controller.customers;
 
 import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.common.model.Audit;
-import com.dashboard.controller.CustomersController;
+import com.dashboard.controller.v1.CustomersController;
 import com.dashboard.dataTransferObject.customer.CustomerRead;
 import com.dashboard.mapper.interfaces.ICustomerMapper;
 import com.dashboard.model.entities.Customer;

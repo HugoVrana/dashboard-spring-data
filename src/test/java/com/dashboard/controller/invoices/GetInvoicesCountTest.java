@@ -24,7 +24,7 @@ class GetInvoicesCountTest extends BaseInvoicesControllerTest {
 
         when(invoiceService.getAllInvoices()).thenReturn(List.of(invoice1, invoice2));
 
-        mockMvc.perform(get("/invoices/count"))
+        mockMvc.perform(get("/api/v1/invoices/count"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("2"));
@@ -37,7 +37,7 @@ class GetInvoicesCountTest extends BaseInvoicesControllerTest {
 
         when(invoiceService.getInvoicesByStatus("pending")).thenReturn(List.of(testInvoice));
 
-        mockMvc.perform(get("/invoices/count")
+        mockMvc.perform(get("/api/v1/invoices/count")
                         .param("status", "pending"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

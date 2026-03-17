@@ -30,7 +30,7 @@ public class GetInvoicesAmountTest extends BaseInvoicesControllerTest {
 
         when(invoiceService.getAllInvoices()).thenReturn(List.of(invoice1, invoice2));
 
-        mockMvc.perform(get("/invoices/amount"))
+        mockMvc.perform(get("/api/v1/invoices/amount"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("300.00"));
@@ -44,7 +44,7 @@ public class GetInvoicesAmountTest extends BaseInvoicesControllerTest {
 
         when(invoiceService.getInvoicesByStatus("paid")).thenReturn(List.of(testInvoice));
 
-        mockMvc.perform(get("/invoices/amount")
+        mockMvc.perform(get("/api/v1/invoices/amount")
                         .param("status", "paid"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

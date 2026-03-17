@@ -9,7 +9,9 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get User By ID")
 @DisplayName("GET /users/{id}")
@@ -21,7 +23,7 @@ public class GetUserByIdTest extends BaseUsersControllerTest {
         when(userService.getUserById(testUserId)).thenReturn(Optional.of(testUser));
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(get("/users/{id}", testUserId.toHexString()))
+        mockMvc.perform(get("/api/v1/users/{id}", testUserId.toHexString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(testUserId.toHexString()))
@@ -34,14 +36,14 @@ public class GetUserByIdTest extends BaseUsersControllerTest {
     void getUserById_Returns404WhenNotFound() throws Exception {
         when(userService.getUserById(testUserId)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/users/{id}", testUserId.toHexString()))
+        mockMvc.perform(get("/api/v1/users/{id}", testUserId.toHexString()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("should return 404 when id is invalid")
     void getUserById_Returns404WhenIdInvalid() throws Exception {
-        mockMvc.perform(get("/users/{id}", "invalid-id"))
+        mockMvc.perform(get("/api/v1/users/{id}", "invalid-id"))
                 .andExpect(status().isNotFound());
     }
 }

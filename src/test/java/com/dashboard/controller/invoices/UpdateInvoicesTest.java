@@ -33,7 +33,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceService.updateInvoice(eq(testInvoiceId.toHexString()), any(InvoiceUpdate.class)))
                 .thenReturn(testInvoiceRead);
 
-        mockMvc.perform(put("/invoices/{id}", testInvoiceId.toHexString())
+        mockMvc.perform(put("/api/v1/invoices/{id}", testInvoiceId.toHexString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
                 .andExpect(status().isCreated())
@@ -48,7 +48,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceService.updateInvoice(eq(testInvoiceId.toHexString()), any(InvoiceUpdate.class)))
                 .thenThrow(new ResourceNotFoundException("Invoice not found"));
 
-        mockMvc.perform(put("/invoices/{id}", testInvoiceId.toHexString())
+        mockMvc.perform(put("/api/v1/invoices/{id}", testInvoiceId.toHexString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
                 .andExpect(status().isNotFound());
@@ -62,7 +62,7 @@ public class UpdateInvoicesTest extends BaseInvoicesControllerTest {
         when(invoiceService.updateInvoice(eq("invalid-id"), any(InvoiceUpdate.class)))
                 .thenThrow(new ResourceNotFoundException("This id is invalid"));
 
-        mockMvc.perform(put("/invoices/{id}", "invalid-id")
+        mockMvc.perform(put("/api/v1/invoices/{id}", "invalid-id")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invoiceUpdate)))
                 .andExpect(status().isNotFound());

@@ -13,7 +13,7 @@ public class RevenueAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /revenues/ - correct grant allows access")
     void getAllRevenues_WithCorrectGrant_Returns200() throws Exception {
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-revenue-read")))
                 .andExpect(status().isOk());
     }
@@ -21,7 +21,7 @@ public class RevenueAuthorizationTest extends BaseAuthorizationSecurityTest {
     @Test
     @DisplayName("GET /revenues/ - missing grant returns 403")
     void getAllRevenues_WithoutGrant_Returns403() throws Exception {
-        mockMvc.perform(get("/revenues/")
+        mockMvc.perform(get("/api/v1/revenues/")
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isForbidden());
     }

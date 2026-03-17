@@ -9,7 +9,9 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Story("Get User By Email")
 @DisplayName("GET /users/email/{email}")
@@ -21,7 +23,7 @@ public class GetUserByEmailTest extends BaseUsersControllerTest {
         when(userService.getUserByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(userMapper.toRead(testUser)).thenReturn(testUserRead);
 
-        mockMvc.perform(get("/users/email/{email}", testEmail))
+        mockMvc.perform(get("/api/v1/users/email/{email}", testEmail))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").value(testEmail))
@@ -34,7 +36,7 @@ public class GetUserByEmailTest extends BaseUsersControllerTest {
         String nonExistentEmail = "nonexistent@example.com";
         when(userService.getUserByEmail(nonExistentEmail)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/users/email/{email}", nonExistentEmail))
+        mockMvc.perform(get("/api/v1/users/email/{email}", nonExistentEmail))
                 .andExpect(status().isNotFound());
     }
 }
