@@ -5,12 +5,10 @@ import com.dashboard.config.TestJwtTokenGenerator;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
 import com.dashboard.model.entities.Revenue;
-import com.dashboard.model.entities.User;
 import com.dashboard.repository.ICustomerRepository;
 import com.dashboard.repository.IInvoiceRepository;
 import com.dashboard.repository.IInvoiceSearchRepository;
 import com.dashboard.repository.IRevenueRepository;
-import com.dashboard.repository.IUserRepository;
 import com.dashboard.service.interfaces.IR2Service;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -79,9 +77,6 @@ public abstract class BaseIntegrationTest {
     protected IInvoiceSearchRepository invoiceSearchRepository;
 
     @Autowired
-    protected IUserRepository userRepository;
-
-    @Autowired
     protected IRevenueRepository revenueRepository;
 
     @MockitoBean
@@ -95,7 +90,6 @@ public abstract class BaseIntegrationTest {
         invoiceSearchRepository.deleteAll();
         invoiceRepository.deleteAll();
         customersRepository.deleteAll();
-        userRepository.deleteAll();
         revenueRepository.deleteAll();
     }
 
@@ -139,19 +133,6 @@ public abstract class BaseIntegrationTest {
         invoice.setStatus(status);
         invoice.setAudit(createActiveAudit());
         return invoiceRepository.save(invoice);
-    }
-
-    /**
-     * Creates and saves an active user to the database.
-     */
-    protected User createAndSaveUser() {
-        User user = new User();
-        user.set_id(new ObjectId());
-        user.setName(faker.name().fullName());
-        user.setEmail(faker.internet().emailAddress());
-        user.setPassword(faker.internet().password());
-        user.setAudit(createActiveAudit());
-        return userRepository.save(user);
     }
 
     /**
