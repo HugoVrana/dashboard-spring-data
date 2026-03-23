@@ -24,7 +24,6 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
     void getInvoiceById_ReturnsInvoiceWhenFound() throws Exception {
         Invoice testInvoice = createTestInvoice();
         InvoiceRead testInvoiceRead = createTestInvoiceRead(testInvoice);
-        CustomerRead customerRead = testInvoiceRead.getCustomer();
 
         when(invoiceService.getInvoiceById(testInvoiceId.toHexString())).thenReturn(testInvoice);
         when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
@@ -33,7 +32,7 @@ public class GetInvoicesByIdTest extends BaseInvoicesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(testInvoiceId.toHexString()))
-                .andExpect(jsonPath("$.amount").value(testAmount))
+                .andExpect(jsonPath("$.amount").value(testAmount.doubleValue()))
                 .andExpect(jsonPath("$.status").value(testStatus));
     }
 
