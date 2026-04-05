@@ -22,8 +22,10 @@ import net.datafaker.Faker;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.dashboard.config.TestConfig;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -42,6 +44,7 @@ import java.util.List;
 @Epic("Integration Tests")
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(TestConfig.class)
 public abstract class BaseIntegrationTest {
 
     private static final TransitionWalker.ReachedState<RunningMongodProcess> mongodProcess;

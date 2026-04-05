@@ -28,7 +28,7 @@ import java.util.UUID;
 @Epic("Activity Feed")
 @Feature("Activity API")
 @Tag("controller-activity")
-@WebMvcTest(ActivityController.class)
+@WebMvcTest(value = ActivityController.class, excludeAutoConfiguration = {org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import(TestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)

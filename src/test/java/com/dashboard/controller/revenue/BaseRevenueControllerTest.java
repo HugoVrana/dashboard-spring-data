@@ -31,7 +31,7 @@ import java.time.Month;
 @Epic("Revenue")
 @Feature("Revenue API")
 @Tag("controller-revenue")
-@WebMvcTest(RevenuesController.class)
+@WebMvcTest(value = RevenuesController.class, excludeAutoConfiguration = {org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import(TestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)
