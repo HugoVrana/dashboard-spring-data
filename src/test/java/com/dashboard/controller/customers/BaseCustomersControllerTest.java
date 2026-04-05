@@ -30,7 +30,7 @@ import java.time.Instant;
 @Epic("Customers")
 @Feature("Customer API")
 @Tag("controller-customer")
-@WebMvcTest(CustomersController.class)
+@WebMvcTest(value = CustomersController.class, excludeAutoConfiguration = {org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import(TestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)

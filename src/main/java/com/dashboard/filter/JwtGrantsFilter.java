@@ -1,30 +1,28 @@
 package com.dashboard.filter;
 
 import com.dashboard.authentication.GrantsAuthentication;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import javax.crypto.SecretKey;
+
 import java.io.IOException;
 import java.util.List;
 
 @Component
 @Order(1)
+@RequiredArgsConstructor
 public class JwtGrantsFilter extends OncePerRequestFilter {
 
-    @Value("${JWT.SECRET}")
-    private String jwtSecret;
+    private final JwtDecoder jwtDecoder;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -34,17 +32,13 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
             String token = extractToken(request);
 
             if (token != null) {
-                Claims claims = validateAndParse(token);
-                List<String> grants = claims.get("grants", List.class);
-                String userId = claims.get("userId", String.class);
-                String profileImageUrl = claims.get("profileImageUrl", String.class);
-                if (profileImageUrl == null) {
-                    profileImageUrl = "";
-                }
+                Jwt jwt = jwtDecoder.decode(token);
+                List<String> grants = jwt.getClaimAsStringList("grants");
+                String userId = jwt.getSubject();
+                String email = jwt.getClaimAsString("email");
 
-                // Set authentication in SecurityContext
                 SecurityContextHolder.getContext()
-                        .setAuthentication(new GrantsAuthentication(claims.getSubject(), userId, profileImageUrl, grants));
+                        .setAuthentication(new GrantsAuthentication(email, userId, "", grants));
             }
         } catch (Exception e) {
             // Token invalid or expired - continue without auth
@@ -61,19 +55,5 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
         }
         String token = bearerToken.substring(7).trim();
         return token.isEmpty() ? null : token;
-    }
-
-    private Claims validateAndParse(String token) {
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-
-            return Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JWT token");
-        }
     }
 }
