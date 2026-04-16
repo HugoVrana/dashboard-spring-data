@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Hidden
 @RestController
-@RequestMapping(value = "api/v1", produces = "application/json")
 public class RootController {
 
     @GetMapping("/")
