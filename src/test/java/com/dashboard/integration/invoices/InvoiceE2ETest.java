@@ -69,7 +69,7 @@ public class InvoiceE2ETest extends BaseIntegrationTest {
                         .header("Authorization", authHeader("dashboard-invoices-read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(invoice.get_id().toHexString()))
-                .andExpect(jsonPath("$.amount").value(invoice.getAmount()))
+                .andExpect(jsonPath("$.amount").value(invoice.getAmount().doubleValue()))
                 .andExpect(jsonPath("$.status").value(invoice.getStatus()))
                 .andExpect(jsonPath("$.customer.id").value(testCustomer.get_id().toHexString()));
     }
