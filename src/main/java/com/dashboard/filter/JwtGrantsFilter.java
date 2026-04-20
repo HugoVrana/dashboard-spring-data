@@ -1,13 +1,17 @@
 package com.dashboard.filter;
 
 import com.dashboard.authentication.GrantsAuthentication;
+import com.dashboard.common.logging.GrafanaHttpClient;
+import com.dashboard.common.model.log.ApiCallLog;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -15,14 +19,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
-@Component
+@Slf4j
 @Order(1)
+@Component
 @RequiredArgsConstructor
 public class JwtGrantsFilter extends OncePerRequestFilter {
 
     private final JwtDecoder jwtDecoder;
+    private final GrafanaHttpClient grafanaHttpClient;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -42,6 +49,22 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             // Token invalid or expired - continue without auth
+            ApiCallLog callLog = ApiCallLog.builder()
+                    .statusCode(HttpStatus.UNAUTHORIZED.value())
+                    .statusMessage(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                    .timestamp(Instant.now())
+                    .method(request.getMethod())
+                    .requestId(request.getRequestId())
+                    .level("warn")
+                    .environment(request.getServletContext().getContextPath())
+                    .clientIp(request.getRemoteAddr())
+                    .endpoint(request.getRequestURI())
+                    .userAgent(request.getHeader("User-Agent"))
+                    .errorType(e.getClass().getSimpleName())
+                    .errorMessage(e.getMessage())
+                    .build();
+            grafanaHttpClient.send(callLog);
+            log.warn("JWT validation failed [{}] path={} reason={}", e.getClass().getSimpleName(), request.getRequestURI(), e.getMessage());
             SecurityContextHolder.clearContext();
         }
 
