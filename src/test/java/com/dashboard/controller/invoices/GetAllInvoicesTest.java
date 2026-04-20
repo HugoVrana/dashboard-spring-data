@@ -26,7 +26,6 @@ class GetAllInvoicesTest extends BaseInvoicesControllerTest {
     void getAllInvoices_ReturnsAllInvoices() throws Exception {
         Invoice testInvoice = createTestInvoice();
         InvoiceRead testInvoiceRead = createTestInvoiceRead(testInvoice);
-        CustomerRead customerRead = testInvoiceRead.getCustomer();
 
         when(invoiceService.getAllInvoices()).thenReturn(List.of(testInvoice));
         when(invoiceMapper.toReadWithCustomer(testInvoice)).thenReturn(testInvoiceRead);
@@ -35,7 +34,7 @@ class GetAllInvoicesTest extends BaseInvoicesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(testInvoiceId.toHexString()))
-                .andExpect(jsonPath("$[0].amount").value(testAmount))
+                .andExpect(jsonPath("$[0].amount").value(testAmount.doubleValue()))
                 .andExpect(jsonPath("$[0].status").value(testStatus));
     }
 
