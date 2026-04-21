@@ -15,11 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
@@ -62,19 +65,37 @@ public class SecurityConfig {
     }
 
     private List<String> fetchAllowedHosts() {
-        if (!ObjectId.isValid(oAuthProperties.getClientId())) {
-            log.warn("No valid OAuth client ID configured, using fallback CORS origins: {}", oAuthProperties.getCorsFallbackOrigins());
-            return oAuthProperties.getCorsFallbackOrigins();
+        if (!StringUtils.hasText(oAuthProperties.getClientId()) || !ObjectId.isValid(oAuthProperties.getClientId())) {
+            List<String> fallbackOrigins = getFallbackOrigins();
+            log.warn("No valid OAuth client ID configured, using fallback CORS origins: {}", fallbackOrigins);
+            return fallbackOrigins;
         }
         return oAuthClientRepository
                 .findBy_idAndAudit_DeletedAtIsNull(new ObjectId(oAuthProperties.getClientId()))
                 .map(client -> {
-                    log.info("Loaded {} CORS origin(s) from OAuth client", client.getAllowedHosts().size());
-                    return client.getAllowedHosts();
+                    List<String> allowedHosts = normalizeOrigins(client.getAllowedHosts());
+                    log.info("Loaded {} CORS origin(s) from OAuth client", allowedHosts.size());
+                    return allowedHosts;
                 })
                 .orElseGet(() -> {
-                    log.warn("OAuth client not found, using fallback CORS origins: {}", oAuthProperties.getCorsFallbackOrigins());
-                    return oAuthProperties.getCorsFallbackOrigins();
+                    List<String> fallbackOrigins = getFallbackOrigins();
+                    log.warn("OAuth client not found, using fallback CORS origins: {}", fallbackOrigins);
+                    return fallbackOrigins;
                 });
+    }
+
+    private List<String> getFallbackOrigins() {
+        return normalizeOrigins(oAuthProperties.getCorsFallbackOrigins());
+    }
+
+    private List<String> normalizeOrigins(List<String> origins) {
+        if (origins == null) {
+            return Collections.emptyList();
+        }
+        return origins.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
     }
 }

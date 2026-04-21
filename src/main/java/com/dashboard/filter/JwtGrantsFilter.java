@@ -28,6 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtGrantsFilter extends OncePerRequestFilter {
 
+    private static final String SERVICE_NAME = "spring-dashboard";
+
     private final JwtDecoder jwtDecoder;
     private final GrafanaHttpClient grafanaHttpClient;
 
@@ -49,21 +51,26 @@ public class JwtGrantsFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             // Token invalid or expired - continue without auth
-            ApiCallLog callLog = ApiCallLog.builder()
-                    .statusCode(HttpStatus.UNAUTHORIZED.value())
-                    .statusMessage(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                    .timestamp(Instant.now())
-                    .method(request.getMethod())
-                    .requestId(request.getRequestId())
-                    .level("warn")
-                    .environment(request.getServletContext().getContextPath())
-                    .clientIp(request.getRemoteAddr())
-                    .endpoint(request.getRequestURI())
-                    .userAgent(request.getHeader("User-Agent"))
-                    .errorType(e.getClass().getSimpleName())
-                    .errorMessage(e.getMessage())
-                    .build();
-            grafanaHttpClient.send(callLog);
+            try {
+                ApiCallLog callLog = ApiCallLog.builder()
+                        .service(SERVICE_NAME)
+                        .statusCode(HttpStatus.UNAUTHORIZED.value())
+                        .statusMessage(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                        .timestamp(Instant.now())
+                        .method(request.getMethod())
+                        .requestId(request.getRequestId())
+                        .level("warn")
+                        .environment(request.getServletContext().getContextPath())
+                        .clientIp(request.getRemoteAddr())
+                        .endpoint(request.getRequestURI())
+                        .userAgent(request.getHeader("User-Agent"))
+                        .errorType(e.getClass().getSimpleName())
+                        .errorMessage(e.getMessage())
+                        .build();
+                grafanaHttpClient.send(callLog);
+            } catch (Exception loggingException) {
+                log.warn("Failed to log JWT validation failure", loggingException);
+            }
             log.warn("JWT validation failed [{}] path={} reason={}", e.getClass().getSimpleName(), request.getRequestURI(), e.getMessage());
             SecurityContextHolder.clearContext();
         }

@@ -1,6 +1,7 @@
 package com.dashboard.integration;
 
 import com.dashboard.common.model.Audit;
+import com.dashboard.common.logging.GrafanaHttpClient;
 import com.dashboard.config.TestJwtTokenGenerator;
 import com.dashboard.model.entities.Customer;
 import com.dashboard.model.entities.Invoice;
@@ -87,6 +88,9 @@ public abstract class BaseIntegrationTest {
 
     @MockitoBean
     protected S3Client s3Client;
+
+    @MockitoBean
+    protected GrafanaHttpClient grafanaHttpClient;
 
     @BeforeEach
     void cleanDatabase() {

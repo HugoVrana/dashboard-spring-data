@@ -13,5 +13,5 @@ public final class OAuthProperties {
 
     private String clientId;
 
-    private List<String> corsFallbackOrigins;
+    private List<String> corsFallbackOrigins = List.of("http://localhost:3000");
 }
