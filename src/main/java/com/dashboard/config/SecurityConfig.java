@@ -62,6 +62,10 @@ public class SecurityConfig {
     }
 
     private List<String> fetchAllowedHosts() {
+        if (!ObjectId.isValid(oAuthProperties.getClientId())) {
+            log.warn("No valid OAuth client ID configured, using fallback CORS origins: {}", oAuthProperties.getCorsFallbackOrigins());
+            return oAuthProperties.getCorsFallbackOrigins();
+        }
         return oAuthClientRepository
                 .findBy_idAndAudit_DeletedAtIsNull(new ObjectId(oAuthProperties.getClientId()))
                 .map(client -> {
